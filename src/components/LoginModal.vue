@@ -7,7 +7,7 @@ defineProps<{
 }>()
 
 // Definiamo gli eventi che il componente può inviare al "padre" (App.vue)
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'switch-to-signup'])
 
 const close = () => {
   emit('close')
@@ -62,7 +62,7 @@ const close = () => {
           </button>
 
           <p class="text-center text-xs text-slate-500 dark:text-slate-400 mt-4">
-            Don't have an account? <a href="#" class="text-cyan-600 dark:text-cyan-400 font-bold hover:underline">Sign up</a>
+            Don't have an account? <button @click.prevent="emit('switch-to-signup')" class="text-cyan-600 dark:text-cyan-400 font-bold hover:underline">Sign up</button>
           </p>
         </div>
       </div>
