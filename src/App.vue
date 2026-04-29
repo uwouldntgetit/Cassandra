@@ -3,18 +3,21 @@ import { ref, onMounted } from 'vue'
 import 'leaflet/dist/leaflet.css'
 import * as L from 'leaflet'
 
+// 1. Importiamo tutti i componenti
 import TopBar from './components/TopBar.vue'
 import SideMenu from './components/SideMenu.vue'
 import LoginModal from './components/LoginModal.vue'
-import SignupModal from './components/SignupModal.vue' // <-- Aggiunto!
+import SignupModal from './components/SignupModal.vue'
+import SettingsModal from './components/SettingsModal.vue'
 
+// 2. Stati globali
 const isDark = ref(true)
 
-// Stati per i due modali
 const showLoginModal = ref(false)
-const showSignupModal = ref(false) // <-- Aggiunto!
+const showSignupModal = ref(false)
+const showSettingsModal = ref(false)
 
-// Funzioni per alternarli
+// 3. Funzioni per la navigazione tra modali
 const openLogin = () => {
   showSignupModal.value = false
   showLoginModal.value = true
@@ -25,6 +28,7 @@ const openSignup = () => {
   showSignupModal.value = true
 }
 
+// 4. Configurazione Mappa
 const mapContainer = ref<HTMLElement | null>(null)
 let tileLayer: L.TileLayer | null = null
 const lightMapUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
@@ -57,19 +61,25 @@ onMounted(() => {
     <SideMenu 
       :isDark="isDark" 
       @toggle-theme="toggleTheme" 
-      @open-login="showLoginModal = true" 
+      @open-login="openLogin" 
+      @open-settings="showSettingsModal = true"
     />
     
     <LoginModal 
       :isOpen="showLoginModal" 
       @close="showLoginModal = false" 
-      @switch-to-signup="openSignup"
+      @switch-to-signup="openSignup" 
     />
-
+    
     <SignupModal 
       :isOpen="showSignupModal" 
       @close="showSignupModal = false" 
-      @switch-to-login="openLogin"
+      @switch-to-login="openLogin" 
+    />
+
+    <SettingsModal 
+      :isOpen="showSettingsModal" 
+      @close="showSettingsModal = false" 
     />
 
   </div>

@@ -2,7 +2,7 @@
 import { Sun, Moon, Settings, Info, LogIn } from 'lucide-vue-next'
 
 defineProps<{ isDark: boolean }>()
-const emit = defineEmits(['toggle-theme', 'open-login'])
+const emit = defineEmits(['toggle-theme', 'open-login', 'open-settings'])
 </script>
 
 <template>
@@ -17,7 +17,7 @@ const emit = defineEmits(['toggle-theme', 'open-login'])
       <Moon v-else class="w-5 h-5" />
     </button>
     
-    <button class="w-11 h-11 flex items-center justify-center bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-cyan-500/30 dark:border-cyan-400/30 rounded-xl shadow-lg shadow-cyan-500/10 dark:shadow-cyan-400/10 hover:border-cyan-500/60 dark:hover:border-cyan-400/60 transition-all text-cyan-600 dark:text-cyan-400">
+    <button @click="emit('open-settings')" class="w-11 h-11 flex items-center justify-center bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-cyan-500/30 dark:border-cyan-400/30 rounded-xl shadow-lg shadow-cyan-500/10 dark:shadow-cyan-400/10 hover:border-cyan-500/60 dark:hover:border-cyan-400/60 transition-all text-cyan-600 dark:text-cyan-400">
       <Settings class="w-5 h-5" />
     </button>
     
