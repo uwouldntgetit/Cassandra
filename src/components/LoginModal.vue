@@ -1,15 +1,50 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { Mail, Lock, X } from 'lucide-vue-next'
+import { useAuthStore } from '../stores/authStore'
 
-// Definiamo le proprietà che il componente riceve dall'esterno
+const authStore = useAuthStore()
+
+const email = ref('')
+const password = ref('')
+// Nuova variabile per gestire il messaggio di errore
+const errorMessage = ref('')
+
 defineProps<{
   isOpen: boolean
 }>()
 
-// Definiamo gli eventi che il componente può inviare al "padre" (App.vue)
 const emit = defineEmits(['close', 'switch-to-signup'])
 
+const handleLogin = () => {
+  // Resettiamo l'errore a ogni tentativo
+  errorMessage.value = ''
+
+  // 1. Controllo campi vuoti
+  if (!email.value || !password.value) {
+    errorMessage.value = 'Please enter both email and password.'
+    return 
+  }
+
+  // 2. Controllo formato email valido
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailPattern.test(email.value)) {
+    errorMessage.value = 'Please enter a valid email address.'
+    return
+  }
+
+  authStore.login(email.value)
+  
+  // Svuotiamo i campi dopo il login
+  email.value = ''
+  password.value = ''
+  errorMessage.value = ''
+  emit('close')
+}
+
 const close = () => {
+  // Puliamo l'errore se l'utente chiude il modale e lo riapre
+  errorMessage.value = ''
   emit('close')
 }
 </script>
@@ -35,6 +70,7 @@ const close = () => {
             <div class="relative">
               <Mail class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-cyan-500" />
               <input 
+                v-model="email"
                 type="email" 
                 placeholder="your.email@example.com" 
                 class="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 transition-all text-sm text-slate-900 dark:text-slate-100"
@@ -50,6 +86,7 @@ const close = () => {
             <div class="relative">
               <Lock class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-cyan-500" />
               <input 
+                v-model="password"
                 type="password" 
                 placeholder="Enter your password" 
                 class="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 transition-all text-sm text-slate-900 dark:text-slate-100"
@@ -57,7 +94,12 @@ const close = () => {
             </div>
           </div>
 
-          <button class="w-full py-3.5 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/30 transition-all transform hover:scale-[1.02] active:scale-[0.98] mt-2">
+          <!-- Messaggio di errore inserito qui -->
+          <p v-if="errorMessage" class="text-xs font-medium text-red-500 text-center animate-pulse">
+            {{ errorMessage }}
+          </p>
+
+          <button @click="handleLogin" class="w-full py-3.5 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/30 transition-all transform hover:scale-[1.02] active:scale-[0.98] mt-2">
             Sign In
           </button>
 
