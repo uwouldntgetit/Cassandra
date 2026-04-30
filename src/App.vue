@@ -19,8 +19,8 @@ const showSignupModal = ref(false)
 const showSettingsModal = ref(false)
 const showAboutModal = ref(false)
 
-const openLogin = () => { showSignupModal = false; showLoginModal.value = true }
-const openSignup = () => { showLoginModal = false; showSignupModal.value = true }
+const openLogin = () => { showSignupModal.value = false; showLoginModal.value = true }
+const openSignup = () => { showLoginModal.value = false; showSignupModal.value = true }
 
 const activeLayers = ref({ weather: false, traffic: false })
 const handleToggleLayer = (layer: 'weather' | 'traffic') => { activeLayers.value[layer] = !activeLayers.value[layer] }
