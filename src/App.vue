@@ -58,7 +58,20 @@ onMounted(() => {
   document.documentElement.setAttribute('data-theme', 'dark')
   document.documentElement.classList.add('dark')
   if (mapContainer.value) {
-    mapInstance = L.map(mapContainer.value, { zoomControl: false }).setView([46.0679, 11.1211], 14)
+    // 1. Definiamo i confini (Sud-Ovest e Nord-Est di Trento e dintorni)
+    const trentoBounds = L.latLngBounds(
+      [45.90, 11.00], // Sud-Ovest
+      [46.20, 11.30]  // Nord-Est
+    )
+
+    // 2. Inseriamo i blocchi nella mappa
+    mapInstance = L.map(mapContainer.value, { 
+      zoomControl: false,
+      maxBounds: trentoBounds,      // Blocca lo scorrimento
+      maxBoundsViscosity: 1.0,      // Rende i bordi "solidi" (non rimbalzano)
+      minZoom: 12                   // Impedisce di zoomare sull'Italia intera
+    }).setView([46.0679, 11.1211], 14)
+
     tileLayer = L.tileLayer(darkMapUrl, { maxZoom: 19 }).addTo(mapInstance)
   }
 })
