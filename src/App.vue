@@ -33,6 +33,17 @@ const openSignup = () => {
 // 4. Configurazione Mappa
 const mapContainer = ref<HTMLElement | null>(null)
 let tileLayer: L.TileLayer | null = null
+let mapInstance: L.Map | null = null
+
+const handleMapFly = (lat: number, lon: number) => {
+  if (mapInstance) {
+    mapInstance.flyTo([lat, lon], 15, {
+      animate: true,
+      duration: 2.0
+    })
+  }
+}
+
 const lightMapUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
 const darkMapUrl = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
 
@@ -47,8 +58,8 @@ onMounted(() => {
   document.documentElement.setAttribute('data-theme', 'dark')
   document.documentElement.classList.add('dark')
   if (mapContainer.value) {
-    const map = L.map(mapContainer.value, { zoomControl: false }).setView([46.0679, 11.1211], 14)
-    tileLayer = L.tileLayer(darkMapUrl, { maxZoom: 19 }).addTo(map)
+    mapInstance = L.map(mapContainer.value, { zoomControl: false }).setView([46.0679, 11.1211], 14)
+    tileLayer = L.tileLayer(darkMapUrl, { maxZoom: 19 }).addTo(mapInstance)
   }
 })
 </script>
@@ -58,7 +69,9 @@ onMounted(() => {
     
     <div ref="mapContainer" class="absolute inset-0 z-0"></div>
 
-    <TopBar />
+    <TopBar 
+      @fly-to="handleMapFly"
+    />
     
     <SideMenu 
       :isDark="isDark" 
