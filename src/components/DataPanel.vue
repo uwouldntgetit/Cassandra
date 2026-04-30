@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { Thermometer, Droplets, Wind, CloudRain, Car, AlertTriangle, Activity } from 'lucide-vue-next'
+import { useLayerStore } from '../stores/layerStore' // Importiamo lo Store
 
-defineProps<{
-  activeLayers: { weather: boolean; traffic: boolean }
-}>()
+const layerStore = useLayerStore() // Ci colleghiamo al cervello
 </script>
 
 <template>
@@ -18,7 +17,7 @@ defineProps<{
     >
       
       <!-- CARD METEO (Notare il key="weather", fondamentale per l'animazione) -->
-      <div v-if="activeLayers.weather" key="weather" class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-cyan-500/30 rounded-3xl p-6 shadow-xl pointer-events-auto">
+      <div v-if="layerStore.activeLayers.weather" key="weather" class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-cyan-500/30 rounded-3xl p-6 shadow-xl pointer-events-auto">
         <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-5 flex items-center gap-2">
           <div class="w-2 h-2 rounded-full bg-sky-500 shadow-[0_0_8px_rgba(14,165,233,0.8)]"></div>
           Weather Overview
@@ -53,7 +52,7 @@ defineProps<{
       </div>
 
       <!-- CARD TRAFFICO (Notare il key="traffic") -->
-      <div v-if="activeLayers.traffic" key="traffic" class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-orange-500/30 rounded-3xl p-6 shadow-xl pointer-events-auto">
+      <div v-if="layerStore.activeLayers.traffic" key="traffic" class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-orange-500/30 rounded-3xl p-6 shadow-xl pointer-events-auto">
         <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-5 flex items-center gap-2">
           <div class="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.8)]"></div>
           Traffic Flow

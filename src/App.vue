@@ -4,6 +4,9 @@ import { ref, onMounted, watch } from 'vue'
 import 'leaflet/dist/leaflet.css'
 import * as L from 'leaflet'
 
+import { useLayerStore } from './stores/layerStore'
+const layerStore = useLayerStore()
+
 import TopBar from './components/TopBar.vue'
 import SideMenu from './components/SideMenu.vue'
 import LoginModal from './components/LoginModal.vue'
@@ -21,9 +24,6 @@ const showAboutModal = ref(false)
 
 const openLogin = () => { showSignupModal.value = false; showLoginModal.value = true }
 const openSignup = () => { showLoginModal.value = false; showSignupModal.value = true }
-
-const activeLayers = ref({ weather: false, traffic: false })
-const handleToggleLayer = (layer: 'weather' | 'traffic') => { activeLayers.value[layer] = !activeLayers.value[layer] }
 
 // --- MAPPA E DATI ---
 const mapContainer = ref<HTMLElement | null>(null)
@@ -73,7 +73,7 @@ const mockWeatherData = [
 ]
 
 // 🚗 OSSERVATORE TRAFFICO
-watch(() => activeLayers.value.traffic, (isActive) => {
+watch(() => layerStore.activeLayers.traffic, (isActive) => {
   if (!mapInstance) return
   if (isActive) {
     // Disegna le linee
@@ -92,7 +92,7 @@ watch(() => activeLayers.value.traffic, (isActive) => {
 })
 
 // 🌤️ OSSERVATORE METEO
-watch(() => activeLayers.value.weather, (isActive) => {
+watch(() => layerStore.activeLayers.weather, (isActive) => {
   if (!mapInstance) return
   if (isActive) {
     weatherLayerGroup = L.layerGroup().addTo(mapInstance) // Crea un gruppo per i marker
@@ -147,8 +147,8 @@ onMounted(() => {
     
     <div ref="mapContainer" class="absolute inset-0 z-0"></div>
 
-    <TopBar :activeLayers="activeLayers" @fly-to="handleMapFly" @toggle-layer="handleToggleLayer" />
-    <DataPanel :activeLayers="activeLayers" />
+    <TopBar @fly-to="handleMapFly" />
+    <DataPanel />
     <SideMenu :isDark="isDark" @toggle-theme="toggleTheme" @open-login="openLogin" @open-settings="showSettingsModal = true" @open-about="showAboutModal = true" />
     
     <LoginModal :isOpen="showLoginModal" @close="showLoginModal = false" @switch-to-signup="openSignup" />

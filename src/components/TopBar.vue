@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { Search, Layers, Loader2, MapPin, AlertCircle } from 'lucide-vue-next'
+import { useLayerStore } from '../stores/layerStore' // Importiamo lo Store
 
-defineProps<{ activeLayers: { weather: boolean; traffic: boolean } }>()
-const emit = defineEmits(['fly-to', 'toggle-layer'])
+const layerStore = useLayerStore() // Ci colleghiamo al cervello
+
+const emit = defineEmits(['fly-to'])
 
 const showLayersMenu = ref(false)
 const searchQuery = ref('')
@@ -108,14 +110,14 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
         </button>
         
         <div v-if="showLayersMenu" class="absolute top-full mt-2 right-0 w-56 bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl rounded-xl shadow-xl border border-cyan-500/20 z-50 p-1.5 flex flex-col gap-1">
-          <button @click="toggleLayer('weather')" class="w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg hover:bg-cyan-50 dark:hover:bg-slate-800 transition-all text-slate-900 dark:text-slate-100">
-            <span class="flex items-center gap-2.5"><div :class="['w-2 h-2 rounded-full bg-sky-500', activeLayers.weather ? 'opacity-100' : 'opacity-30']"></div>Weather</span>
-            <div :class="['w-8 h-4 rounded-full flex items-center px-1 transition-all', activeLayers.weather ? 'bg-cyan-500' : 'bg-slate-300 dark:bg-slate-700']"><div :class="['w-2.5 h-2.5 bg-white rounded-full transition-all transform', activeLayers.weather ? 'translate-x-3.5' : 'translate-x-0']"></div></div>
+          <button @click="layerStore.toggleLayer('weather')" class="w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg hover:bg-cyan-50 dark:hover:bg-slate-800 transition-all text-slate-900 dark:text-slate-100">
+            <span class="flex items-center gap-2.5"><div :class="['w-2 h-2 rounded-full bg-sky-500', layerStore.activeLayers.weather ? 'opacity-100' : 'opacity-30']"></div>Weather</span>
+            <div :class="['w-8 h-4 rounded-full flex items-center px-1 transition-all', layerStore.activeLayers.weather ? 'bg-cyan-500' : 'bg-slate-300 dark:bg-slate-700']"><div :class="['w-2.5 h-2.5 bg-white rounded-full transition-all transform', layerStore.activeLayers.weather ? 'translate-x-3.5' : 'translate-x-0']"></div></div>
           </button>
           
-          <button @click="toggleLayer('traffic')" class="w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg hover:bg-cyan-50 dark:hover:bg-slate-800 transition-all text-slate-900 dark:text-slate-100">
-            <span class="flex items-center gap-2.5"><div :class="['w-2 h-2 rounded-full bg-orange-500', activeLayers.traffic ? 'opacity-100' : 'opacity-30']"></div>Traffic Flow</span>
-            <div :class="['w-8 h-4 rounded-full flex items-center px-1 transition-all', activeLayers.traffic ? 'bg-cyan-500' : 'bg-slate-300 dark:bg-slate-700']"><div :class="['w-2.5 h-2.5 bg-white rounded-full transition-all transform', activeLayers.traffic ? 'translate-x-3.5' : 'translate-x-0']"></div></div>
+          <button @click="layerStore.toggleLayer('traffic')" class="w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg hover:bg-cyan-50 dark:hover:bg-slate-800 transition-all text-slate-900 dark:text-slate-100">
+            <span class="flex items-center gap-2.5"><div :class="['w-2 h-2 rounded-full bg-orange-500', layerStore.activeLayers.traffic ? 'opacity-100' : 'opacity-30']"></div>Traffic Flow</span>
+            <div :class="['w-8 h-4 rounded-full flex items-center px-1 transition-all', layerStore.activeLayers.traffic ? 'bg-cyan-500' : 'bg-slate-300 dark:bg-slate-700']"><div :class="['w-2.5 h-2.5 bg-white rounded-full transition-all transform', layerStore.activeLayers.traffic ? 'translate-x-3.5' : 'translate-x-0']"></div></div>
           </button>
         </div>
       </div>
