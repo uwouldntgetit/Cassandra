@@ -1,10 +1,25 @@
 <script setup lang="ts">
 import { X } from 'lucide-vue-next'
+import { onMounted, onUnmounted } from 'vue'
 
-defineProps<{ isOpen: boolean }>()
+const props = defineProps<{ isOpen: boolean }>()
 const emit = defineEmits(['close', 'switch-to-login'])
 
 const close = () => emit('close')
+
+const handleKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Escape' && props.isOpen) {
+    close()
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('keydown', handleKeydown)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleKeydown)
+})
 </script>
 
 <template>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+// 1. IMPORTANTE: Aggiunti onMounted e onUnmounted
+import { ref, onMounted, onUnmounted } from 'vue' 
 import { Mail, Lock, X } from 'lucide-vue-next'
 import { useAuthStore } from '../stores/authStore'
 
@@ -7,26 +8,22 @@ const authStore = useAuthStore()
 
 const email = ref('')
 const password = ref('')
-// Nuova variabile per gestire il messaggio di errore
 const errorMessage = ref('')
 
-defineProps<{
+const props = defineProps<{
   isOpen: boolean
 }>()
 
 const emit = defineEmits(['close', 'switch-to-signup'])
 
 const handleLogin = () => {
-  // Resettiamo l'errore a ogni tentativo
   errorMessage.value = ''
 
-  // 1. Controllo campi vuoti
   if (!email.value || !password.value) {
     errorMessage.value = 'Please enter both email and password.'
     return 
   }
 
-  // 2. Controllo formato email valido
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailPattern.test(email.value)) {
     errorMessage.value = 'Please enter a valid email address.'
@@ -35,7 +32,6 @@ const handleLogin = () => {
 
   authStore.login(email.value)
   
-  // Svuotiamo i campi dopo il login
   email.value = ''
   password.value = ''
   errorMessage.value = ''
@@ -43,10 +39,23 @@ const handleLogin = () => {
 }
 
 const close = () => {
-  // Puliamo l'errore se l'utente chiude il modale e lo riapre
   errorMessage.value = ''
   emit('close')
 }
+
+const handleKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Escape' && props.isOpen) {
+    close() //
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('keydown', handleKeydown)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleKeydown)
+})
 </script>
 
 <template>
