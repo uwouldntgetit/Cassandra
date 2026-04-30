@@ -54,7 +54,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="relative w-full h-screen overflow-hidden font-sans pointer-events-none">
+  <div class="relative w-full h-screen overflow-hidden font-sans">
     
     <div ref="mapContainer" class="absolute inset-0 z-0"></div>
 
