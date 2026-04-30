@@ -160,5 +160,14 @@ onMounted(() => {
 </template>
 
 <style>
+/* Nascondiamo i controlli di default di Leaflet (es. lo zoom in alto a sinistra) */
 .leaflet-control-container { display: none; }
+
+/* Forziamo il cursore classico su tutta la mappa e durante il trascinamento */
+.leaflet-container, 
+.leaflet-interactive, 
+.leaflet-grab, 
+.leaflet-dragging { 
+  cursor: default !important; 
+}
 </style>
