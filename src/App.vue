@@ -9,6 +9,7 @@ import SideMenu from './components/SideMenu.vue'
 import LoginModal from './components/LoginModal.vue'
 import SignupModal from './components/SignupModal.vue'
 import SettingsModal from './components/SettingsModal.vue'
+import AboutModal from './components/AboutModal.vue'
 
 // 2. Stati globali
 const isDark = ref(true)
@@ -16,6 +17,7 @@ const isDark = ref(true)
 const showLoginModal = ref(false)
 const showSignupModal = ref(false)
 const showSettingsModal = ref(false)
+const showAboutModal = ref(false)
 
 // 3. Funzioni per la navigazione tra modali
 const openLogin = () => {
@@ -63,6 +65,7 @@ onMounted(() => {
       @toggle-theme="toggleTheme" 
       @open-login="openLogin" 
       @open-settings="showSettingsModal = true"
+      @open-about="showAboutModal = true"
     />
     
     <LoginModal 
@@ -81,6 +84,11 @@ onMounted(() => {
       :isOpen="showSettingsModal" 
       @close="showSettingsModal = false" 
     />
+
+    <AboutModal 
+      :isOpen="showAboutModal" 
+      @close="showAboutModal = false" 
+     />
 
   </div>
 </template>
