@@ -10,9 +10,19 @@ import LoginModal from './components/LoginModal.vue'
 import SignupModal from './components/SignupModal.vue'
 import SettingsModal from './components/SettingsModal.vue'
 import AboutModal from './components/AboutModal.vue'
+import DataPanel from './components/DataPanel.vue'
 
 // 2. Stati globali
 const isDark = ref(true)
+
+const activeLayers = ref({
+  weather: false,
+  traffic: false
+})
+
+const handleToggleLayer = (layer: 'weather' | 'traffic') => {
+  activeLayers.value[layer] = !activeLayers.value[layer]
+}
 
 const showLoginModal = ref(false)
 const showSignupModal = ref(false)
@@ -83,7 +93,9 @@ onMounted(() => {
     <div ref="mapContainer" class="absolute inset-0 z-0"></div>
 
     <TopBar 
-      @fly-to="handleMapFly"
+      :activeLayers="activeLayers" 
+      @fly-to="handleMapFly" 
+      @toggle-layer="handleToggleLayer" 
     />
     
     <SideMenu 
@@ -115,6 +127,8 @@ onMounted(() => {
       :isOpen="showAboutModal" 
       @close="showAboutModal = false" 
      />
+
+     <DataPanel :activeLayers="activeLayers" />
 
   </div>
 </template>
