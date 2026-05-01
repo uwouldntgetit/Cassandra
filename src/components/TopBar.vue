@@ -15,7 +15,6 @@ const noResults = ref(false)
 
 const topBarRef = ref<HTMLElement | null>(null)
 
-const toggleLayer = (layer: string) => emit('toggle-layer', layer)
 const handleInput = () => noResults.value = false
 
 const handleSearch = async () => {

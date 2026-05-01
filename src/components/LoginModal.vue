@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// 1. IMPORTANTE: Aggiunti onMounted e onUnmounted
 import { ref, onMounted, onUnmounted } from 'vue' 
 import { Mail, Lock, X } from 'lucide-vue-next'
 import { useAuthStore } from '../stores/authStore'
@@ -102,8 +101,7 @@ onUnmounted(() => {
               />
             </div>
           </div>
-
-          <!-- Messaggio di errore inserito qui -->
+          
           <p v-if="errorMessage" class="text-xs font-medium text-red-500 text-center animate-pulse">
             {{ errorMessage }}
           </p>
