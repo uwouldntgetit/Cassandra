@@ -1,32 +1,39 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
 
-export const useAuthStore = defineStore('auth', () => {
-  const isLoggedIn = ref(false)
-  const user = ref<{ name: string; email: string; initials: string } | null>(null)
+interface User {
+  name: string
+  email: string
+  initials: string
+}
 
-  const login = (email: string) => {
-    isLoggedIn.value = true
-    
-    // Estraiamo nome e cognome dall'email (es. mario.rossi)
-    const parts = email.split('@')[0].split('.')
-    const first = parts[0] || 'U'
-    const last = parts[1] || ''
-    
-    // Creiamo il nome completo formattato
-    const name = first.charAt(0).toUpperCase() + first.slice(1) + 
-                 (last ? ' ' + last.charAt(0).toUpperCase() + last.slice(1) : '')
-                 
-    // Creiamo le iniziali (es. MR)
-    const initials = (first.charAt(0) + (last ? last.charAt(0) : '')).toUpperCase()
+export const useAuthStore = defineStore('auth', {
+  state: () => ({
+    user: null as User | null,
+    isLoggedIn: false
+  }),
+  actions: {
+    // Ora login accetta un secondo parametro OPZIONALE (il nome)
+    login(email: string, fullName?: string) {
+      
+      // Se mi passi un fullName (es. durante il Signup), uso quello.
+      // Altrimenti (es. Login normale), prendo la parte prima della @ e metto la prima lettera maiuscola.
+      const name = fullName 
+        ? fullName 
+        : email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1)
+      
+      // Calcolo le iniziali corrette. Se c'è uno spazio ("Mirco Rossi"), prendo "MR".
+      // Se è una parola sola ("Mirco"), prendo "M".
+      const nameParts = name.split(' ')
+      const initials = nameParts.length > 1 
+        ? nameParts[0][0].toUpperCase() + nameParts[1][0].toUpperCase()
+        : name.substring(0, 2).toUpperCase()
 
-    user.value = { name, email, initials }
+      this.user = { name, email, initials }
+      this.isLoggedIn = true
+    },
+    logout() {
+      this.user = null
+      this.isLoggedIn = false
+    }
   }
-
-  const logout = () => {
-    isLoggedIn.value = false
-    user.value = null
-  }
-
-  return { isLoggedIn, user, login, logout }
 })
