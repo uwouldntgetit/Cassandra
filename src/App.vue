@@ -33,6 +33,8 @@ let tileLayer: L.TileLayer | null = null
 // Variabili per tenere in memoria i disegni sulla mappa e poterli cancellare
 let trafficLayer: L.GeoJSON | null = null
 let weatherLayerGroup: L.LayerGroup | null = null
+let crowdLayerGroup: L.LayerGroup | null = null
+let lightingLayerGroup: L.LayerGroup | null = null
 
 const lightMapUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
 const darkMapUrl = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
@@ -70,6 +72,22 @@ const mockWeatherData = [
   { lat: 46.0679, lon: 11.1211, type: 'cloud', temp: '18°' }, // Centro (Nuvoloso)
   { lat: 46.0850, lon: 11.1150, type: 'sun', temp: '21°' },   // Trento Nord (Sole)
   { lat: 46.0350, lon: 11.0450, type: 'rain', temp: '14°' }   // Monte Bondone (Pioggia)
+]
+
+// Array Finto per l'Affollamento
+const mockCrowdData = [
+  { lat: 46.0685, lon: 11.1205, level: 'high' }, // Piazza Duomo
+  { lat: 46.0699, lon: 11.1245, level: 'medium' }, // Castello
+  { lat: 46.0715, lon: 11.1189, level: 'high' }  // Stazione
+]
+
+// Array Finto per l'Illuminazione
+const mockLightingData = [
+  { lat: 46.0680, lon: 11.1215 },
+  { lat: 46.0682, lon: 11.1218 },
+  { lat: 46.0684, lon: 11.1221 },
+  { lat: 46.0675, lon: 11.1200 },
+  { lat: 46.0677, lon: 11.1203 }
 ]
 
 // 🚗 OSSERVATORE TRAFFICO
@@ -124,6 +142,57 @@ watch(() => layerStore.activeLayers.weather, (isActive) => {
   }
 })
 
+// 🚶 OSSERVATORE AFFOLLAMENTO
+watch(() => layerStore.activeLayers.crowd, (isActive) => {
+  if (!mapInstance) return
+  if (isActive) {
+    crowdLayerGroup = L.layerGroup().addTo(mapInstance)
+    
+    mockCrowdData.forEach(c => {
+      // Icona HTML per il battito cardiaco
+      const iconHtml = `
+        <div class="heartbeat-container">
+          <div class="heartbeat-dot"></div>
+          <div class="heartbeat-ring"></div>
+        </div>`
+
+      const customIcon = L.divIcon({
+        html: iconHtml,
+        className: '', 
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
+      })
+
+      L.marker([c.lat, c.lon], { icon: customIcon }).addTo(crowdLayerGroup!)
+    })
+  } else {
+    if (crowdLayerGroup) mapInstance.removeLayer(crowdLayerGroup)
+  }
+})
+
+// 💡 OSSERVATORE ILLUMINAZIONE
+watch(() => layerStore.activeLayers.lighting, (isActive) => {
+  if (!mapInstance) return
+  if (isActive) {
+    lightingLayerGroup = L.layerGroup().addTo(mapInstance)
+    
+    mockLightingData.forEach(l => {
+      const iconHtml = `<div class="lighting-dot"></div>`
+
+      const customIcon = L.divIcon({
+        html: iconHtml,
+        className: '', 
+        iconSize: [10, 10],
+        iconAnchor: [5, 5]
+      })
+
+      L.marker([l.lat, l.lon], { icon: customIcon }).addTo(lightingLayerGroup!)
+    })
+  } else {
+    if (lightingLayerGroup) mapInstance.removeLayer(lightingLayerGroup)
+  }
+})
+
 // ==========================================
 
 onMounted(() => {
@@ -169,5 +238,44 @@ onMounted(() => {
 .leaflet-grab, 
 .leaflet-dragging { 
   cursor: default !important; 
+}
+
+/* --- ANIMAZIONE AFFOLLAMENTO --- */
+.heartbeat-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.heartbeat-dot {
+  width: 12px;
+  height: 12px;
+  background-color: #a855f7; /* purple-500 */
+  border-radius: 50%;
+  z-index: 2;
+}
+.heartbeat-ring {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background-color: #a855f7;
+  border-radius: 50%;
+  z-index: 1;
+  animation: pulse-purple 2s infinite ease-out;
+}
+@keyframes pulse-purple {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(3.5); opacity: 0; }
+}
+
+/* --- STILE ILLUMINAZIONE --- */
+.lighting-dot {
+  width: 10px;
+  height: 10px;
+  background-color: #fef08a; /* yellow-200 */
+  border-radius: 50%;
+  box-shadow: 0 0 8px 3px rgba(253, 224, 71, 0.6); /* glow */
 }
 </style>

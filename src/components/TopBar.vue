@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { Search, Layers, Loader2, MapPin, AlertCircle } from 'lucide-vue-next'
-import { useLayerStore } from '../stores/layerStore' // Importiamo lo Store
+import { useLayerStore } from '../stores/layerStore'
 
-const layerStore = useLayerStore() // Ci colleghiamo al cervello
+const layerStore = useLayerStore()
 
 const emit = defineEmits(['fly-to'])
 
@@ -13,7 +13,6 @@ const isSearching = ref(false)
 const searchResults = ref<any[]>([])
 const noResults = ref(false) 
 
-// Nuova reference per capire dove si trova la TopBar
 const topBarRef = ref<HTMLElement | null>(null)
 
 const toggleLayer = (layer: string) => emit('toggle-layer', layer)
@@ -52,7 +51,6 @@ const closeDropdowns = () => {
   noResults.value = false
 }
 
-// LOGICA "CLICK OUTSIDE": Chiude i menu se clicchi fuori dalla barra, senza bloccare la mappa!
 const handleClickOutside = (event: MouseEvent) => {
   if (topBarRef.value && !topBarRef.value.contains(event.target as Node)) {
     closeDropdowns()
@@ -64,7 +62,6 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 </script>
 
 <template>
-  <!-- Abbiamo aggiunto ref="topBarRef" qui -->
   <div ref="topBarRef" class="absolute top-0 left-0 right-0 p-4 md:p-6 pointer-events-auto z-10">
     <div class="max-w-3xl mx-auto flex flex-col sm:flex-row gap-3">
       
@@ -96,8 +93,8 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
           </ul>
           <div v-else-if="noResults" class="px-4 py-6 text-center">
             <AlertCircle class="w-6 h-6 text-slate-400 mx-auto mb-2" />
-            <p class="text-sm font-bold text-slate-900 dark:text-white">Nessun risultato trovato</p>
-            <p class="text-xs text-slate-500 mt-1">Prova a verificare l'ortografia o usa termini più generici.</p>
+            <p class="text-sm font-bold text-slate-900 dark:text-white">No results found</p>
+            <p class="text-xs text-slate-500 mt-1">Try checking your spelling or use more generic terms.</p>
           </div>
         </div>
       </div>
@@ -110,15 +107,31 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
         </button>
         
         <div v-if="showLayersMenu" class="absolute top-full mt-2 right-0 w-56 bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl rounded-xl shadow-xl border border-cyan-500/20 z-50 p-1.5 flex flex-col gap-1">
+          
+          <!-- Weather -->
           <button @click="layerStore.toggleLayer('weather')" class="w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg hover:bg-cyan-50 dark:hover:bg-slate-800 transition-all text-slate-900 dark:text-slate-100">
             <span class="flex items-center gap-2.5"><div :class="['w-2 h-2 rounded-full bg-sky-500', layerStore.activeLayers.weather ? 'opacity-100' : 'opacity-30']"></div>Weather</span>
             <div :class="['w-8 h-4 rounded-full flex items-center px-1 transition-all', layerStore.activeLayers.weather ? 'bg-cyan-500' : 'bg-slate-300 dark:bg-slate-700']"><div :class="['w-2.5 h-2.5 bg-white rounded-full transition-all transform', layerStore.activeLayers.weather ? 'translate-x-3.5' : 'translate-x-0']"></div></div>
           </button>
           
+          <!-- Traffic -->
           <button @click="layerStore.toggleLayer('traffic')" class="w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg hover:bg-cyan-50 dark:hover:bg-slate-800 transition-all text-slate-900 dark:text-slate-100">
             <span class="flex items-center gap-2.5"><div :class="['w-2 h-2 rounded-full bg-orange-500', layerStore.activeLayers.traffic ? 'opacity-100' : 'opacity-30']"></div>Traffic Flow</span>
             <div :class="['w-8 h-4 rounded-full flex items-center px-1 transition-all', layerStore.activeLayers.traffic ? 'bg-cyan-500' : 'bg-slate-300 dark:bg-slate-700']"><div :class="['w-2.5 h-2.5 bg-white rounded-full transition-all transform', layerStore.activeLayers.traffic ? 'translate-x-3.5' : 'translate-x-0']"></div></div>
           </button>
+
+          <!-- Lighting (Nuovo) -->
+          <button @click="layerStore.toggleLayer('lighting')" class="w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg hover:bg-cyan-50 dark:hover:bg-slate-800 transition-all text-slate-900 dark:text-slate-100">
+            <span class="flex items-center gap-2.5"><div :class="['w-2 h-2 rounded-full bg-yellow-500', layerStore.activeLayers.lighting ? 'opacity-100' : 'opacity-30']"></div>Smart Lighting</span>
+            <div :class="['w-8 h-4 rounded-full flex items-center px-1 transition-all', layerStore.activeLayers.lighting ? 'bg-cyan-500' : 'bg-slate-300 dark:bg-slate-700']"><div :class="['w-2.5 h-2.5 bg-white rounded-full transition-all transform', layerStore.activeLayers.lighting ? 'translate-x-3.5' : 'translate-x-0']"></div></div>
+          </button>
+
+          <!-- Crowd Density (Nuovo) -->
+          <button @click="layerStore.toggleLayer('crowd')" class="w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg hover:bg-cyan-50 dark:hover:bg-slate-800 transition-all text-slate-900 dark:text-slate-100">
+            <span class="flex items-center gap-2.5"><div :class="['w-2 h-2 rounded-full bg-purple-500', layerStore.activeLayers.crowd ? 'opacity-100' : 'opacity-30']"></div>Crowd Density</span>
+            <div :class="['w-8 h-4 rounded-full flex items-center px-1 transition-all', layerStore.activeLayers.crowd ? 'bg-cyan-500' : 'bg-slate-300 dark:bg-slate-700']"><div :class="['w-2.5 h-2.5 bg-white rounded-full transition-all transform', layerStore.activeLayers.crowd ? 'translate-x-3.5' : 'translate-x-0']"></div></div>
+          </button>
+
         </div>
       </div>
     </div>

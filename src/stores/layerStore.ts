@@ -1,20 +1,17 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
 
-// Creiamo e esportiamo il nostro Store
-export const useLayerStore = defineStore('layers', () => {
-  
-  // STATO: I nostri dati (sostituiscono la variabile in App.vue)
-  const activeLayers = ref({
-    weather: false,
-    traffic: false
-  })
-
-  // AZIONI: Le funzioni per modificare i dati
-  const toggleLayer = (layer: 'weather' | 'traffic') => {
-    activeLayers.value[layer] = !activeLayers.value[layer]
+export const useLayerStore = defineStore('layers', {
+  state: () => ({
+    activeLayers: {
+      weather: false,
+      traffic: false,
+      lighting: false, // NUOVO
+      crowd: false     // NUOVO
+    }
+  }),
+  actions: {
+    toggleLayer(layer: keyof typeof this.activeLayers) {
+      this.activeLayers[layer] = !this.activeLayers[layer]
+    }
   }
-
-  // Ritorniamo ciò che vogliamo rendere pubblico
-  return { activeLayers, toggleLayer }
 })
