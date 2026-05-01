@@ -86,7 +86,7 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
           <div v-else class="mb-4">
             <button @click="handleAction('open-login')" class="w-full py-3.5 flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white rounded-xl shadow-lg shadow-cyan-500/30 transition-all font-bold text-sm">
               <LogIn class="w-5 h-5" />
-              Accedi
+              Log in
             </button>
           </div>
 
@@ -103,13 +103,13 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
           <!-- Aggiunto "group" al bottone e l'animazione di rotazione all'icona -->
           <button @click="handleAction('open-settings')" class="flex items-center gap-4 p-3.5 w-full rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group">
             <Settings class="w-5 h-5 text-slate-400 group-hover:rotate-90 transition-transform duration-500" />
-            <span class="font-medium text-sm">Impostazioni</span>
+            <span class="font-medium text-sm">Settings</span>
           </button>
 
           <!-- Aggiunto "group" al bottone e l'animazione di zoom (scale-125) all'icona -->
           <button @click="handleAction('open-about')" class="flex items-center gap-4 p-3.5 w-full rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group">
             <Info class="w-5 h-5 text-slate-400 group-hover:scale-125 transition-transform duration-300" />
-            <span class="font-medium text-sm">Informazioni</span>
+            <span class="font-medium text-sm">About us</span>
           </button>
 
         </div>

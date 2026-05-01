@@ -78,7 +78,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
           v-model="searchQuery"
           @input="handleInput"
           @keyup.enter.prevent="handleSearch"
-          placeholder="Cerca via o piazza a Trento..." 
+          placeholder="Search locations in Trento..." 
           class="w-full pl-10 pr-4 py-2.5 text-sm bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-cyan-500/30 hover:border-cyan-500/60 rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all text-slate-900 dark:text-slate-100" 
         />
 
