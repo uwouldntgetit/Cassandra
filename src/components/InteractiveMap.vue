@@ -1,4 +1,12 @@
 <script setup lang="ts">
+/**
+ * InteractiveMap.vue
+ * Encapsulates the Leaflet map instance, mock data, and map layers.
+ * Listens to layerStore changes to render or remove data points dynamically.
+ * 
+ * Incapsula l'istanza della mappa Leaflet, i dati mock e i layer della mappa.
+ * Ascolta le modifiche al layerStore per aggiungere o rimuovere i dati dinamicamente.
+ */
 import { ref, onMounted, watch } from 'vue'
 import 'leaflet/dist/leaflet.css'
 import * as L from 'leaflet'
@@ -11,7 +19,7 @@ const mapContainer = ref<HTMLElement | null>(null)
 let mapInstance: L.Map | null = null
 let tileLayer: L.TileLayer | null = null
 
-// Variabili per tenere in memoria i disegni sulla mappa e poterli cancellare
+// Map layer instances for cleanup
 let trafficLayer: L.GeoJSON | null = null
 let weatherLayerGroup: L.LayerGroup | null = null
 let crowdLayerGroup: L.LayerGroup | null = null
@@ -29,11 +37,9 @@ const flyTo = (lat: number, lon: number) => {
 }
 defineExpose({ flyTo })
 
-// ==========================================
-// 🔴 DATI FINTI E WATCHERS (LA MAGIA)
-// ==========================================
+// --- Mock Data & Layer Watchers ---
 
-// GeoJSON Finto per il Traffico (Coordinate [Longitudine, Latitudine]!)
+// Mock GeoJSON data for Traffic layer (Coordinates: [Longitude, Latitude])
 const mockTrafficData = {
   "type": "FeatureCollection",
   "features": [
@@ -43,21 +49,21 @@ const mockTrafficData = {
   ]
 }
 
-// Array Finto per il Meteo
+// Mock array data for Weather layer
 const mockWeatherData = [
   { lat: 46.0679, lon: 11.1211, type: 'cloud', temp: '18°' },
   { lat: 46.0850, lon: 11.1150, type: 'sun', temp: '21°' },  
   { lat: 46.0350, lon: 11.0450, type: 'rain', temp: '14°' }  
 ]
 
-// Array Finto per l'Affollamento
+// Mock array data for Crowd Density layer
 const mockCrowdData = [
   { lat: 46.0685, lon: 11.1205, level: 'high' },
   { lat: 46.0699, lon: 11.1245, level: 'medium' },
   { lat: 46.0715, lon: 11.1189, level: 'high' }  
 ]
 
-// Array Finto per l'Illuminazione
+// Mock array data for Smart Lighting layer
 const mockLightingData = [
   { lat: 46.0680, lon: 11.1215 },
   { lat: 46.0682, lon: 11.1218 },
@@ -66,7 +72,7 @@ const mockLightingData = [
   { lat: 46.0677, lon: 11.1203 }
 ]
 
-// 🚗 OSSERVATORE TRAFFICO
+// Traffic Layer Watcher
 watch(() => layerStore.activeLayers.traffic, (isActive) => {
   if (!mapInstance) return
   if (isActive) {
@@ -83,7 +89,7 @@ watch(() => layerStore.activeLayers.traffic, (isActive) => {
   }
 })
 
-// 🌤️ OSSERVATORE METEO
+// Weather Layer Watcher
 watch(() => layerStore.activeLayers.weather, (isActive) => {
   if (!mapInstance) return
   if (isActive) {
@@ -111,7 +117,7 @@ watch(() => layerStore.activeLayers.weather, (isActive) => {
   }
 })
 
-// 🚶 OSSERVATORE AFFOLLAMENTO
+// Crowd Density Layer Watcher
 watch(() => layerStore.activeLayers.crowd, (isActive) => {
   if (!mapInstance) return
   if (isActive) {
@@ -138,7 +144,7 @@ watch(() => layerStore.activeLayers.crowd, (isActive) => {
   }
 })
 
-// 💡 OSSERVATORE ILLUMINAZIONE
+// Smart Lighting Layer Watcher
 watch(() => layerStore.activeLayers.lighting, (isActive) => {
   if (!mapInstance) return
   if (isActive) {
@@ -179,10 +185,10 @@ onMounted(() => {
 </template>
 
 <style>
-/* Nascondiamo i controlli di default di Leaflet */
+/* Hide default Leaflet controls */
 .leaflet-control-container { display: none; }
 
-/* Forziamo il cursore classico su tutta la mappa e durante il trascinamento */
+/* Force default cursor on the entire map and during dragging */
 .leaflet-container, 
 .leaflet-interactive, 
 .leaflet-grab, 
@@ -190,7 +196,7 @@ onMounted(() => {
   cursor: default !important; 
 }
 
-/* --- ANIMAZIONE AFFOLLAMENTO --- */
+/* --- Crowd Animation --- */
 .heartbeat-container {
   position: relative;
   width: 100%;
@@ -220,7 +226,7 @@ onMounted(() => {
   100% { transform: scale(3.5); opacity: 0; }
 }
 
-/* --- STILE ILLUMINAZIONE --- */
+/* --- Lighting Style --- */
 .lighting-dot {
   width: 10px;
   height: 10px;

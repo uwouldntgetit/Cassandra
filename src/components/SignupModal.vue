@@ -1,4 +1,12 @@
 <script setup lang="ts">
+/**
+ * SignupModal.vue
+ * Registration modal for new users.
+ * Validates user input and creates a new session via AuthStore.
+ * 
+ * Modale di registrazione per i nuovi utenti.
+ * Valida l'input dell'utente e crea una nuova sessione tramite l'AuthStore.
+ */
 import { ref, onMounted, onUnmounted } from 'vue'
 import { Mail, Lock, User, X } from 'lucide-vue-next'
 import { useAuthStore } from '../stores/authStore'
@@ -8,7 +16,7 @@ const authStore = useAuthStore()
 const name = ref('')
 const email = ref('')
 const password = ref('')
-const confirmPassword = ref('') // Aggiunto!
+const confirmPassword = ref('')
 const errorMessage = ref('')
 
 const props = defineProps<{ isOpen: boolean }>()
@@ -33,13 +41,13 @@ const handleSignup = () => {
     return
   }
 
-  // Validazione Ripeti Password
+  // Password confirmation validation
   if (password.value !== confirmPassword.value) {
     errorMessage.value = 'Passwords do not match.'
     return
   }
 
-  // Passiamo ANCHE il nome vero (name.value) allo Store!
+  // Pass full name to AuthStore
   authStore.login(email.value, name.value)
   
   name.value = ''
@@ -70,7 +78,7 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
     <div v-if="isOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <div @click="close" class="absolute inset-0 bg-slate-950/40 backdrop-blur-sm"></div>
       
-      <!-- Ho mantenuto i colori cyan-teal come nel resto dell'app -->
+
       <div class="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-cyan-500/20 overflow-hidden transform transition-all">
         
         <div class="bg-gradient-to-r from-cyan-500 to-teal-500 p-6 text-center relative">
@@ -107,7 +115,7 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
             </div>
           </div>
 
-          <!-- CAMPO CONFERMA PASSWORD RIPRISTINATO -->
+          <!-- Confirm Password Field -->
           <div class="space-y-1.5">
             <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">Confirm Password</label>
             <div class="relative">

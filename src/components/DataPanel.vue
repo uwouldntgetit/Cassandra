@@ -1,4 +1,12 @@
 <script setup lang="ts">
+/**
+ * DataPanel.vue
+ * Coordinator component for displaying active data panels.
+ * Renders individual layer panels via a TransitionGroup based on the layerStore state.
+ * 
+ * Componente coordinatore per la visualizzazione dei pannelli dati attivi.
+ * Renderizza i singoli pannelli dei layer tramite un TransitionGroup in base allo stato del layerStore.
+ */
 import { ref, computed } from 'vue'
 import { useLayerStore } from '../stores/layerStore'
 
@@ -23,16 +31,12 @@ const hasActiveLayers = computed(() => {
 </script>
 
 <template>
-  <!-- Contenitore Principale allargato a 350px per far respirare la scrollbar -->
+  <!-- Main Container: fixed width to accommodate the custom scrollbar -->
   <div 
     v-show="hasActiveLayers"
     class="absolute left-6 top-1/2 -translate-y-1/2 z-40 w-[350px] max-h-[70vh] flex flex-col"
   >
-    <!-- 
-      LA MAGIA: 
-      1. style="direction: rtl;" sposta la scrollbar a sinistra.
-      2. pl-4 (padding-left: 1rem) crea uno spazio fisico tra la scrollbar a sinistra e i pannelli a destra!
-    -->
+    <!-- RTL direction shifts the scrollbar to the left side, padding creates visual separation -->
     <TransitionGroup 
       name="panel" 
       tag="div" 
@@ -100,7 +104,6 @@ const hasActiveLayers = computed(() => {
 
 .custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
-  /* Margini leggeri per non far toccare la scrollbar al bordo superiore/inferiore */
   margin-top: 8px;
   margin-bottom: 8px;
 }

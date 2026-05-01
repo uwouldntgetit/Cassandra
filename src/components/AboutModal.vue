@@ -1,4 +1,10 @@
 <script setup lang="ts">
+/**
+ * AboutModal.vue
+ * Informational modal displaying project details, team members, and data sources.
+ * 
+ * Modale informativo che mostra i dettagli del progetto, i membri del team e le fonti dei dati.
+ */
 import { X, MapPin, Database, Users, Github } from 'lucide-vue-next'
 import { onMounted, onUnmounted } from 'vue'
 
@@ -26,10 +32,10 @@ onUnmounted(() => {
   <Teleport to="body">
     <div v-if="isOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
       
-      <!-- Overlay sfocato -->
+      <!-- Blurred Overlay -->
       <div @click="close" class="absolute inset-0 bg-slate-950/40 backdrop-blur-sm"></div>
       
-      <!-- Card About Us -->
+      <!-- About Us Card -->
       <div class="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-cyan-500/20 overflow-hidden transform transition-all">
         
         <!-- Header -->
@@ -38,7 +44,7 @@ onUnmounted(() => {
             <X class="w-5 h-5" />
           </button>
           
-          <!-- Logo fittizio -->
+          <!-- Mock Logo -->
           <div class="w-12 h-12 mx-auto bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-3">
             <MapPin class="w-6 h-6 text-white" />
           </div>
@@ -47,7 +53,7 @@ onUnmounted(() => {
           <p class="text-cyan-50/90 text-sm mt-1 font-medium">Dashboard v1.0.0</p>
         </div>
 
-        <!-- Contenuto -->
+        <!-- Content -->
         <div class="p-6 space-y-6">
           
           <!-- Mission -->

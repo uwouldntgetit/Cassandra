@@ -1,4 +1,12 @@
 <script setup lang="ts">
+/**
+ * App.vue
+ * Main orchestrator component.
+ * Responsible for layout positioning, theme management, and mounting global modals.
+ * 
+ * Componente principale di orchestrazione.
+ * Responsabile del posizionamento del layout, gestione del tema e caricamento dei modali globali.
+ */
 import { ref, onMounted } from 'vue'
 
 import TopBar from './components/TopBar.vue'
@@ -43,12 +51,15 @@ onMounted(() => {
 <template>
   <div class="relative w-full h-screen overflow-hidden font-sans">
     
+    <!-- Background Interactive Map -->
     <InteractiveMap ref="mapRef" :isDark="isDark" class="absolute inset-0 z-0" />
 
+    <!-- Navigation and Overlay Components -->
     <TopBar @fly-to="handleMapFly" />
     <DataPanel />
     <SideMenu :isDark="isDark" @toggle-theme="toggleTheme" @open-login="openLogin" @open-settings="showSettingsModal = true" @open-about="showAboutModal = true" />
     
+    <!-- Global Modals -->
     <LoginModal :isOpen="showLoginModal" @close="showLoginModal = false" @switch-to-signup="openSignup" />
     <SignupModal :isOpen="showSignupModal" @close="showSignupModal = false" @switch-to-login="openLogin" />
     <SettingsModal :isOpen="showSettingsModal" @close="showSettingsModal = false" />
@@ -58,5 +69,5 @@ onMounted(() => {
 </template>
 
 <style>
-/* Stili globali minimi possono andare qui o in style.css */
+/* Global styles can be added here or in style.css */
 </style>

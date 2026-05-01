@@ -1,4 +1,12 @@
 <script setup lang="ts">
+/**
+ * TopBar.vue
+ * Top navigation bar providing location search and map layer toggles.
+ * Interfaces with the Nominatim API for geocoding search results.
+ * 
+ * Barra di navigazione superiore con ricerca località e toggle per i layer della mappa.
+ * Si interfaccia con l'API Nominatim per i risultati di geocodifica della ricerca.
+ */
 import { ref, onMounted, onUnmounted } from 'vue'
 import { Search, Layers, Loader2, MapPin, AlertCircle } from 'lucide-vue-next'
 import { useLayerStore } from '../stores/layerStore'
@@ -119,13 +127,13 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
             <div :class="['w-8 h-4 rounded-full flex items-center px-1 transition-all', layerStore.activeLayers.traffic ? 'bg-cyan-500' : 'bg-slate-300 dark:bg-slate-700']"><div :class="['w-2.5 h-2.5 bg-white rounded-full transition-all transform', layerStore.activeLayers.traffic ? 'translate-x-3.5' : 'translate-x-0']"></div></div>
           </button>
 
-          <!-- Lighting (Nuovo) -->
+          <!-- Lighting -->
           <button @click="layerStore.toggleLayer('lighting')" class="w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg hover:bg-cyan-50 dark:hover:bg-slate-800 transition-all text-slate-900 dark:text-slate-100">
             <span class="flex items-center gap-2.5"><div :class="['w-2 h-2 rounded-full bg-yellow-500', layerStore.activeLayers.lighting ? 'opacity-100' : 'opacity-30']"></div>Smart Lighting</span>
             <div :class="['w-8 h-4 rounded-full flex items-center px-1 transition-all', layerStore.activeLayers.lighting ? 'bg-cyan-500' : 'bg-slate-300 dark:bg-slate-700']"><div :class="['w-2.5 h-2.5 bg-white rounded-full transition-all transform', layerStore.activeLayers.lighting ? 'translate-x-3.5' : 'translate-x-0']"></div></div>
           </button>
 
-          <!-- Crowd Density (Nuovo) -->
+          <!-- Crowd Density -->
           <button @click="layerStore.toggleLayer('crowd')" class="w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg hover:bg-cyan-50 dark:hover:bg-slate-800 transition-all text-slate-900 dark:text-slate-100">
             <span class="flex items-center gap-2.5"><div :class="['w-2 h-2 rounded-full bg-purple-500', layerStore.activeLayers.crowd ? 'opacity-100' : 'opacity-30']"></div>Crowd Density</span>
             <div :class="['w-8 h-4 rounded-full flex items-center px-1 transition-all', layerStore.activeLayers.crowd ? 'bg-cyan-500' : 'bg-slate-300 dark:bg-slate-700']"><div :class="['w-2.5 h-2.5 bg-white rounded-full transition-all transform', layerStore.activeLayers.crowd ? 'translate-x-3.5' : 'translate-x-0']"></div></div>

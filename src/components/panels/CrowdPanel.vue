@@ -1,4 +1,10 @@
 <script setup lang="ts">
+/**
+ * CrowdPanel.vue
+ * Displays real-time crowd density data and heatmap statistics.
+ * 
+ * Mostra i dati in tempo reale sulla densità della folla e le statistiche della mappa di calore.
+ */
 import { Users, ChevronDown, Activity, Building, TrendingUp } from 'lucide-vue-next'
 import { Line } from 'vue-chartjs'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js'

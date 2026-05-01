@@ -1,4 +1,10 @@
 <script setup lang="ts">
+/**
+ * LightingPanel.vue
+ * Displays statistics and controls for the city's smart lighting infrastructure.
+ * 
+ * Mostra le statistiche e i controlli per l'infrastruttura di illuminazione intelligente della città.
+ */
 import { Lightbulb, ChevronDown, Activity, Zap, Moon } from 'lucide-vue-next'
 import { Line } from 'vue-chartjs'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js'

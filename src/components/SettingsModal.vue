@@ -1,11 +1,17 @@
 <script setup lang="ts">
+/**
+ * SettingsModal.vue
+ * User preferences modal to toggle global application settings.
+ * 
+ * Modale delle preferenze per attivare/disattivare le impostazioni globali dell'app.
+ */
 import { ref, onMounted, onUnmounted } from 'vue'
 import { X, Globe, Bell, Ruler, MonitorPlay } from 'lucide-vue-next'
 
 const props = defineProps<{ isOpen: boolean }>()
 const emit = defineEmits(['close'])
 
-// Stati finti per le impostazioni
+// Mock states for settings
 const notifications = ref(true)
 const metricSystem = ref(true)
 const animations = ref(true)

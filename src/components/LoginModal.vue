@@ -1,4 +1,10 @@
 <script setup lang="ts">
+/**
+ * LoginModal.vue
+ * Authentication modal for existing users.
+ * 
+ * Modale di autenticazione per gli utenti esistenti.
+ */
 import { ref, onMounted, onUnmounted } from 'vue' 
 import { Mail, Lock, X } from 'lucide-vue-next'
 import { useAuthStore } from '../stores/authStore'
@@ -44,7 +50,7 @@ const close = () => {
 
 const handleKeydown = (event: KeyboardEvent) => {
   if (event.key === 'Escape' && props.isOpen) {
-    close() //
+    close()
   }
 }
 

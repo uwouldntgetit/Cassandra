@@ -1,4 +1,10 @@
 <script setup lang="ts">
+/**
+ * WeatherPanel.vue
+ * Displays current weather metrics and forecasts for the city.
+ * 
+ * Mostra le metriche meteo attuali e le previsioni per la città.
+ */
 import { Wind, ChevronDown, Activity, Thermometer, Droplets } from 'lucide-vue-next'
 import { Line } from 'vue-chartjs'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js'

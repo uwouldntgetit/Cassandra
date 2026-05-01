@@ -1,4 +1,10 @@
 <script setup lang="ts">
+/**
+ * TrafficPanel.vue
+ * Displays real-time traffic flow data and congestion metrics.
+ * 
+ * Mostra i dati in tempo reale sul flusso di traffico e le metriche di congestione.
+ */
 import { Car, ChevronDown, Activity, Gauge, AlertTriangle } from 'lucide-vue-next'
 import { Line } from 'vue-chartjs'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js'
