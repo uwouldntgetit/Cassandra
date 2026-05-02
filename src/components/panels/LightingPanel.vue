@@ -22,34 +22,32 @@ const lightingData = { labels: ['18', '20', '22', '00', '02', '04'], datasets: [
 </script>
 
 <template>
-  <div style="direction: ltr;" class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-yellow-500/20 rounded-3xl shadow-xl overflow-hidden shrink-0">
-    <div class="p-5 pb-3">
-      <div class="flex items-center justify-between mb-3">
-        <div class="flex items-center gap-2 text-slate-800 dark:text-white font-bold">
-          <Lightbulb class="w-5 h-5 text-yellow-500" /> <span>Smart Lighting</span>
+  <div style="direction: ltr;" class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-yellow-500/20 rounded-2xl sm:rounded-3xl overflow-hidden shrink-0 flex flex-row sm:flex-col transition-all duration-300" :class="isExpanded ? 'w-[352px] sm:w-72 md:w-full' : 'w-44 sm:w-72 md:w-full'">
+    <div class="w-44 sm:w-full shrink-0 p-3 pb-1.5 sm:p-5 sm:pb-0 flex flex-col justify-between h-[135px] sm:h-auto">
+      <div class="flex items-center justify-between sm:mb-3">
+        <div class="flex items-center gap-1.5 sm:gap-2 text-slate-800 dark:text-white font-bold text-[10px] sm:text-base">
+          <Lightbulb class="w-3 h-3 sm:w-5 sm:h-5 text-yellow-500" /> <span class="truncate">Smart Lighting</span>
         </div>
-        <span class="px-2 py-0.5 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 text-[10px] font-bold rounded-lg border border-yellow-500/20 uppercase">Active</span>
+        <span class="px-1.5 py-0.5 sm:px-2 sm:py-0.5 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 text-[8px] sm:text-[10px] font-bold rounded-md sm:rounded-lg border border-yellow-500/20 uppercase">Active</span>
       </div>
-      <div class="flex items-baseline gap-2 mb-1">
-        <span class="text-4xl font-black text-slate-900 dark:text-white">82%</span> <span class="text-xs font-medium text-slate-500">COVERAGE</span>
+      <div class="flex items-baseline gap-1 sm:gap-2 sm:mb-1">
+        <span class="text-xl sm:text-4xl font-black text-slate-900 dark:text-white">82%</span> <span class="text-[8px] sm:text-xs font-medium text-slate-500">COVERAGE</span>
       </div>
-      <div class="flex items-center justify-between mb-4 mt-2">
-        <div class="flex items-center gap-1.5 text-slate-500 dark:text-slate-400"><Zap class="w-4 h-4 text-yellow-500" /> <span class="text-xs font-medium">324 kWh Saved</span></div>
-        <div class="flex items-center gap-1 text-slate-500 dark:text-slate-400"><Moon class="w-3.5 h-3.5" /> <span class="text-xs font-medium">Auto-Dim</span></div>
+      <div class="flex items-center justify-between sm:mb-4 sm:mt-2">
+        <div class="flex items-center gap-0.5 sm:gap-1.5 text-slate-500 dark:text-slate-400"><Zap class="w-2 h-2 sm:w-4 sm:h-4 text-yellow-500" /> <span class="text-[8px] sm:text-xs font-medium truncate">324 kWh Saved</span></div>
+        <div class="flex items-center gap-0.5 sm:gap-1 text-slate-500 dark:text-slate-400"><Moon class="w-2 h-2 sm:w-3.5 sm:h-3.5" /> <span class="text-[8px] sm:text-xs font-medium truncate">Auto-Dim</span></div>
       </div>
-      <button @click="emit('toggle')" class="flex items-center justify-between w-full pt-3 border-t border-slate-100 dark:border-slate-800 text-[11px] font-bold uppercase tracking-wider text-slate-400 hover:text-yellow-500 transition-colors">
-        <span>{{ isExpanded ? 'Hide Details' : 'Show Details' }}</span>
-        <ChevronDown class="w-4 h-4 transition-transform" :class="{ 'rotate-180': isExpanded }" />
+      <button @click="emit('toggle')" class="flex items-center justify-between w-full pt-1.5 sm:pt-3 border-t border-slate-100 dark:border-slate-800 text-[8px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400 hover:text-yellow-500 transition-colors">
+        <span>{{ isExpanded ? 'Hide' : 'Details' }}</span>
+        <ChevronDown class="w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-300" :class="isExpanded ? 'rotate-90 sm:rotate-180' : '-rotate-90 sm:rotate-0'" />
       </button>
     </div>
-    <div class="grid transition-all duration-300 bg-slate-50/50 dark:bg-slate-800/30" :class="isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'">
-      <div class="overflow-hidden">
-        <div class="p-5 pt-3">
-          <div class="flex items-center gap-2 mb-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-            <Activity class="w-3.5 h-3.5" /> Power Usage & Dimming
-          </div>
-          <div class="h-32"><Line :data="lightingData" :options="getChartOptions()" /></div>
+    <div class="transition-all duration-300 bg-slate-50/50 dark:bg-slate-800/30 overflow-hidden flex flex-1 min-w-0 sm:flex-none sm:grid" :class="isExpanded ? 'opacity-100 sm:grid-rows-[1fr]' : 'opacity-0 sm:grid-rows-[0fr]'">
+      <div class="w-full p-2 sm:p-5 sm:pt-3 h-[135px] sm:h-auto flex flex-col justify-center sm:block overflow-hidden min-h-0">
+        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3 text-[9px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+          <Activity class="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" /> Power Usage & Dimming
         </div>
+        <div class="h-20 sm:h-32"><Line :data="lightingData" :options="getChartOptions()" /></div>
       </div>
     </div>
   </div>

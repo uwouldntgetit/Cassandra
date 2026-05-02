@@ -68,7 +68,7 @@ onUnmounted(() => {
     <div v-if="isOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <div @click="close" class="absolute inset-0 bg-slate-950/40 backdrop-blur-sm"></div>
       
-      <div class="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-cyan-500/20 overflow-hidden transform transition-all">
+      <div class="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-cyan-500/20 overflow-hidden transform transition-all scale-[0.7] sm:scale-100">
         
         <div class="bg-gradient-to-r from-cyan-500 to-teal-500 p-6 text-center relative">
           <button @click="close" class="absolute top-4 right-4 text-white/80 hover:text-white transition-colors">

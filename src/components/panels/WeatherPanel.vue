@@ -22,35 +22,33 @@ const airData = { labels: ['10', '11', '12', '13', '14', '15'], datasets: [{ dat
 </script>
 
 <template>
-  <div style="direction: ltr;" class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-cyan-500/20 rounded-3xl shadow-xl overflow-hidden shrink-0">
-    <div class="p-5 pb-3">
-      <div class="flex items-center justify-between mb-3">
-        <div class="flex items-center gap-2 text-slate-800 dark:text-white font-bold">
-          <Wind class="w-5 h-5 text-cyan-500" /> <span>Air Quality</span>
+  <div style="direction: ltr;" class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-cyan-500/20 rounded-2xl sm:rounded-3xl overflow-hidden shrink-0 flex flex-row sm:flex-col transition-all duration-300" :class="isExpanded ? 'w-[352px] sm:w-72 md:w-full' : 'w-44 sm:w-72 md:w-full'">
+    <div class="w-44 sm:w-full shrink-0 p-3 pb-1.5 sm:p-5 sm:pb-0 flex flex-col justify-between h-[135px] sm:h-auto">
+      <div class="flex items-center justify-between sm:mb-3">
+        <div class="flex items-center gap-1.5 sm:gap-2 text-slate-800 dark:text-white font-bold text-[10px] sm:text-base">
+          <Wind class="w-3 h-3 sm:w-5 sm:h-5 text-cyan-500" /> <span class="truncate">Air Quality</span>
         </div>
-        <span class="px-2 py-0.5 bg-green-500/10 text-green-500 text-[10px] font-bold rounded-lg border border-green-500/20 uppercase">Good</span>
+        <span class="px-1.5 py-0.5 sm:px-2 sm:py-0.5 bg-green-500/10 text-green-500 text-[8px] sm:text-[10px] font-bold rounded-md sm:rounded-lg border border-green-500/20 uppercase">Good</span>
       </div>
-      <div class="flex items-baseline gap-2 mb-1">
-        <span class="text-4xl font-black text-slate-900 dark:text-white">42</span> <span class="text-xs font-medium text-slate-500">AQI</span>
+      <div class="flex items-baseline gap-1 sm:gap-2 sm:mb-1">
+        <span class="text-xl sm:text-4xl font-black text-slate-900 dark:text-white">42</span> <span class="text-[8px] sm:text-xs font-medium text-slate-500">AQI</span>
       </div>
-      <div class="flex items-center gap-4 mb-4 mt-2">
-        <div class="flex items-center gap-1 text-slate-500 dark:text-slate-400"><Thermometer class="w-3.5 h-3.5" /> <span class="text-xs font-medium">22°C</span></div>
-        <div class="flex items-center gap-1 text-slate-500 dark:text-slate-400"><Droplets class="w-3.5 h-3.5" /> <span class="text-xs font-medium">45%</span></div>
-        <div class="flex items-center gap-1 text-slate-500 dark:text-slate-400"><Wind class="w-3.5 h-3.5" /> <span class="text-xs font-medium">12km/h</span></div>
+      <div class="flex items-center justify-between sm:mb-4 sm:mt-2">
+        <div class="flex items-center gap-0.5 sm:gap-1 text-slate-500 dark:text-slate-400"><Thermometer class="w-2 h-2 sm:w-3.5 sm:h-3.5" /> <span class="text-[8px] sm:text-xs font-medium truncate">22°C</span></div>
+        <div class="flex items-center gap-0.5 sm:gap-1 text-slate-500 dark:text-slate-400"><Droplets class="w-2 h-2 sm:w-3.5 sm:h-3.5" /> <span class="text-[8px] sm:text-xs font-medium truncate">45%</span></div>
+        <div class="flex items-center gap-0.5 sm:gap-1 text-slate-500 dark:text-slate-400"><Wind class="w-2 h-2 sm:w-3.5 sm:h-3.5" /> <span class="text-[8px] sm:text-xs font-medium truncate">12km/h</span></div>
       </div>
-      <button @click="emit('toggle')" class="flex items-center justify-between w-full pt-3 border-t border-slate-100 dark:border-slate-800 text-[11px] font-bold uppercase tracking-wider text-slate-400 hover:text-cyan-500 transition-colors">
-        <span>{{ isExpanded ? 'Hide Details' : 'Show Details' }}</span>
-        <ChevronDown class="w-4 h-4 transition-transform" :class="{ 'rotate-180': isExpanded }" />
+      <button @click="emit('toggle')" class="flex items-center justify-between w-full pt-1.5 sm:pt-3 border-t border-slate-100 dark:border-slate-800 text-[8px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400 hover:text-cyan-500 transition-colors">
+        <span>{{ isExpanded ? 'Hide' : 'Details' }}</span>
+        <ChevronDown class="w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-300" :class="isExpanded ? 'rotate-90 sm:rotate-180' : '-rotate-90 sm:rotate-0'" />
       </button>
     </div>
-    <div class="grid transition-all duration-300 bg-slate-50/50 dark:bg-slate-800/30" :class="isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'">
-      <div class="overflow-hidden">
-        <div class="p-5 pt-3">
-          <div class="flex items-center gap-2 mb-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-            <Activity class="w-3.5 h-3.5" /> AQI Trend (Last 6h)
-          </div>
-          <div class="h-32"><Line :data="airData" :options="getChartOptions()" /></div>
+    <div class="transition-all duration-300 bg-slate-50/50 dark:bg-slate-800/30 overflow-hidden flex flex-1 min-w-0 sm:flex-none sm:grid" :class="isExpanded ? 'opacity-100 sm:grid-rows-[1fr]' : 'opacity-0 sm:grid-rows-[0fr]'">
+      <div class="w-full p-2 sm:p-5 sm:pt-3 h-[135px] sm:h-auto flex flex-col justify-center sm:block overflow-hidden min-h-0">
+        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3 text-[9px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+          <Activity class="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" /> Trend
         </div>
+        <div class="h-20 sm:h-32"><Line :data="airData" :options="getChartOptions()" /></div>
       </div>
     </div>
   </div>

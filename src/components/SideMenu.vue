@@ -38,10 +38,10 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
     <!-- Hamburger Button -->
     <button 
       @click="isOpen = true" 
-      class="absolute right-6 top-6 z-50 p-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-cyan-500/20 rounded-xl shadow-xl text-slate-700 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400 transition-all flex items-center justify-center hover:scale-105 active:scale-95"
+      class="absolute right-2.5 top-2.5 sm:right-4 sm:top-3 md:right-6 md:top-5 p-1.5 sm:p-3 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-cyan-500/20 rounded-lg sm:rounded-xl shadow-xl text-slate-700 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400 transition-all flex items-center justify-center hover:scale-105 active:scale-95"
       title="Apri Menu"
     >
-      <Menu class="w-6 h-6" />
+      <Menu class="w-4 h-4 sm:w-6 sm:h-6" />
     </button>
 
     <!-- Slide-out Menu -->
@@ -60,62 +60,62 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
 
       <div 
         :class="[
-          'fixed top-0 right-0 h-full w-72 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border-l border-cyan-500/20 shadow-2xl z-[100] transform transition-transform duration-300 ease-in-out flex flex-col',
+          'fixed top-0 right-0 h-full w-[65vw] sm:w-72 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border-l border-cyan-500/20 shadow-2xl z-[100] transform transition-transform duration-300 ease-in-out flex flex-col',
           isOpen ? 'translate-x-0' : 'translate-x-full'
         ]"
       >
         <!-- Menu Header -->
-        <div class="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800">
-          <h2 class="font-bold text-lg text-slate-800 dark:text-white tracking-wide">Menu</h2>
-          <button @click="isOpen = false" class="p-2 text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors bg-slate-100 dark:bg-slate-800 rounded-full">
-            <X class="w-5 h-5" />
+        <div class="flex items-center justify-between p-4 sm:p-6 border-b border-slate-200 dark:border-slate-800">
+          <h2 class="font-bold text-base sm:text-lg text-slate-800 dark:text-white tracking-wide">Menu</h2>
+          <button @click="isOpen = false" class="p-1.5 sm:p-2 text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors bg-slate-100 dark:bg-slate-800 rounded-full">
+            <X class="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
 
         <!-- Menu Content -->
-        <div class="p-4 flex flex-col gap-2 overflow-y-auto">
+        <div class="p-3 sm:p-4 flex flex-col gap-1 sm:gap-2 overflow-y-auto">
 
           <!-- Logged In User Section -->
-          <div v-if="authStore.isLoggedIn" class="p-4 mb-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl flex flex-col items-center">
-            <div class="w-14 h-14 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center text-white font-bold text-xl shadow-md mb-3">
+          <div v-if="authStore.isLoggedIn" class="p-3 sm:p-4 mb-3 sm:mb-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl sm:rounded-2xl flex flex-col items-center">
+            <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center text-white font-bold text-lg sm:text-xl shadow-md mb-2 sm:mb-3">
               {{ authStore.user?.initials }}
             </div>
-            <p class="font-bold text-slate-900 dark:text-white text-sm">{{ authStore.user?.name }}</p>
-            <p class="text-xs text-slate-500 mb-4">{{ authStore.user?.email }}</p>
-            <button @click="authStore.logout()" class="w-full py-2.5 flex items-center justify-center gap-2 text-sm font-bold text-red-500 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-xl transition-colors">
-              <LogOut class="w-4 h-4" />
+            <p class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">{{ authStore.user?.name }}</p>
+            <p class="text-[10px] sm:text-xs text-slate-500 mb-3 sm:mb-4">{{ authStore.user?.email }}</p>
+            <button @click="authStore.logout()" class="w-full py-2 sm:py-2.5 flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-bold text-red-500 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-lg sm:rounded-xl transition-colors">
+              <LogOut class="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               Logout
             </button>
           </div>
 
           <!-- Guest Section -->
-          <div v-else class="mb-4">
-            <button @click="handleAction('open-login')" class="w-full py-3.5 flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white rounded-xl shadow-lg shadow-cyan-500/30 transition-all font-bold text-sm">
-              <LogIn class="w-5 h-5" />
+          <div v-else class="mb-3 sm:mb-4 flex justify-center">
+            <button @click="handleAction('open-login')" class="w-full max-w-[200px] py-2.5 sm:py-3.5 flex items-center justify-center gap-1.5 sm:gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white rounded-lg sm:rounded-xl shadow-lg shadow-cyan-500/30 transition-all font-bold text-xs sm:text-sm">
+              <LogIn class="w-4 h-4 sm:w-5 sm:h-5" />
               Log in
             </button>
           </div>
 
           <!-- Separator -->
-          <div class="w-full h-px bg-slate-200 dark:bg-slate-800 my-2 transition-colors"></div>
+          <div class="w-full h-px bg-slate-200 dark:bg-slate-800 my-1 sm:my-2 transition-colors"></div>
 
           <!-- Tools & Settings -->
-          <button @click="handleAction('toggle-theme')" class="flex items-center gap-4 p-3.5 w-full rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group">
-            <Sun v-if="isDark" class="w-5 h-5 text-amber-500 group-hover:rotate-90 transition-transform duration-300" />
-            <Moon v-else class="w-5 h-5 text-indigo-500 group-hover:-rotate-12 transition-transform duration-300" />
-            <span class="font-medium text-sm">{{ isDark ? 'Light Mode' : 'Dark Mode' }}</span>
+          <button @click="handleAction('toggle-theme')" class="flex items-center gap-3 sm:gap-4 p-2.5 sm:p-3.5 w-full rounded-lg sm:rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group">
+            <Sun v-if="isDark" class="w-4 h-4 sm:w-5 sm:h-5 text-amber-500 group-hover:rotate-90 transition-transform duration-300" />
+            <Moon v-else class="w-4 h-4 sm:w-5 sm:h-5 text-indigo-500 group-hover:-rotate-12 transition-transform duration-300" />
+            <span class="font-medium text-xs sm:text-sm">{{ isDark ? 'Light Mode' : 'Dark Mode' }}</span>
           </button>
 
 
-          <button @click="handleAction('open-settings')" class="flex items-center gap-4 p-3.5 w-full rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group">
-            <Settings class="w-5 h-5 text-slate-400 group-hover:rotate-90 transition-transform duration-500" />
-            <span class="font-medium text-sm">Settings</span>
+          <button @click="handleAction('open-settings')" class="flex items-center gap-3 sm:gap-4 p-2.5 sm:p-3.5 w-full rounded-lg sm:rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group">
+            <Settings class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 group-hover:rotate-90 transition-transform duration-500" />
+            <span class="font-medium text-xs sm:text-sm">Settings</span>
           </button>
 
 
-          <button @click="handleAction('open-about')" class="flex items-center gap-4 p-3.5 w-full rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group">
-            <Info class="w-5 h-5 text-slate-400 group-hover:scale-125 transition-transform duration-300" />
-            <span class="font-medium text-sm">About us</span>
+          <button @click="handleAction('open-about')" class="flex items-center gap-3 sm:gap-4 p-2.5 sm:p-3.5 w-full rounded-lg sm:rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group">
+            <Info class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 group-hover:scale-125 transition-transform duration-300" />
+            <span class="font-medium text-xs sm:text-sm">About us</span>
           </button>
 
         </div>

@@ -34,14 +34,13 @@ const hasActiveLayers = computed(() => {
   <!-- Main Container: fixed width to accommodate the custom scrollbar -->
   <div 
     v-show="hasActiveLayers"
-    class="absolute left-6 top-1/2 -translate-y-1/2 z-40 w-[350px] max-h-[70vh] flex flex-col"
+    class="absolute left-6 right-6 bottom-6 sm:bottom-auto sm:left-6 sm:right-auto sm:top-1/2 sm:-translate-y-1/2 z-40 sm:w-[350px] max-h-[35vh] sm:max-h-[70vh] flex flex-col pointer-events-none"
   >
-    <!-- RTL direction shifts the scrollbar to the left side, padding creates visual separation -->
+    <!-- RTL direction shifts the scrollbar to the left side on desktop, padding creates visual separation -->
     <TransitionGroup 
       name="panel" 
       tag="div" 
-      class="flex flex-col gap-4 overflow-y-auto custom-scrollbar py-1 pr-1 pl-4"
-      style="direction: rtl;"
+      class="flex flex-row sm:flex-col gap-3 sm:gap-4 overflow-x-auto sm:overflow-x-hidden sm:overflow-y-auto custom-scrollbar sm:px-0 py-2 sm:py-1 sm:pr-1 sm:pl-4 pointer-events-auto"
     >
       <WeatherPanel 
         v-if="layerStore.activeLayers.weather" 
@@ -98,8 +97,19 @@ const hasActiveLayers = computed(() => {
   overflow: hidden;
 }
 
+.custom-scrollbar {
+  direction: rtl;
+}
+
+@media (max-width: 639px) {
+  .custom-scrollbar {
+    direction: ltr;
+  }
+}
+
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
+  height: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
