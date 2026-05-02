@@ -131,7 +131,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 
       <!-- Favorites Dropdown -->
       <div class="relative">
-        <button @click="showFavoritesMenu = !showFavoritesMenu" class="flex items-center justify-center px-3.5 py-2.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-cyan-500/30 rounded-xl shadow-lg transition-all hover:bg-slate-50 dark:hover:bg-slate-800/50 active:scale-95" title="Favorites">
+        <button @click="showFavoritesMenu = !showFavoritesMenu" class="flex items-center justify-center px-3.5 py-2.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-cyan-500/30 hover:border-cyan-500/60 rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50 active:scale-95" title="Favorites">
           <Star class="w-5 h-5 text-amber-500 drop-shadow-sm" />
         </button>
         
@@ -166,7 +166,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 
       <!-- Layers Dropdown -->
       <div class="relative">
-        <button @click="showLayersMenu = !showLayersMenu" class="w-full sm:w-auto flex items-center gap-2 px-5 py-2.5 text-sm bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-cyan-500/30 rounded-xl shadow-lg transition-all text-slate-900 dark:text-slate-100">
+        <button @click="showLayersMenu = !showLayersMenu" class="w-full sm:w-auto flex items-center gap-2 px-5 py-2.5 text-sm bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-cyan-500/30 hover:border-cyan-500/60 rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50 active:scale-95">
           <Layers class="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
           <span>Layers</span>
         </button>
