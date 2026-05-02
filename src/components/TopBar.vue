@@ -8,14 +8,17 @@
  * Si interfaccia con l'API Nominatim per i risultati di geocodifica della ricerca.
  */
 import { ref, onMounted, onUnmounted } from 'vue'
-import { Search, Layers, Loader2, MapPin, AlertCircle } from 'lucide-vue-next'
+import { Search, Layers, Loader2, MapPin, AlertCircle, Star } from 'lucide-vue-next'
 import { useLayerStore } from '../stores/layerStore'
+import { useAuthStore } from '../stores/authStore'
 
 const layerStore = useLayerStore()
+const authStore = useAuthStore()
 
 const emit = defineEmits(['fly-to'])
 
 const showLayersMenu = ref(false)
+const showFavoritesMenu = ref(false)
 const searchQuery = ref('')
 const isSearching = ref(false)
 const searchResults = ref<any[]>([])
@@ -54,8 +57,23 @@ const selectLocation = (lat: string, lon: string, name: string) => {
 
 const closeDropdowns = () => {
   showLayersMenu.value = false
+  showFavoritesMenu.value = false
   searchResults.value = []
   noResults.value = false
+}
+
+const toggleFavoriteResult = (res: any, event: Event) => {
+  event.stopPropagation()
+  if (!authStore.isLoggedIn) {
+    alert("Log in to save favorites")
+    return
+  }
+  authStore.toggleFavorite({
+    lat: res.lat,
+    lon: res.lon,
+    name: res.display_name.split(',')[0],
+    display_name: res.display_name
+  })
 }
 
 const handleClickOutside = (event: MouseEvent) => {
@@ -89,13 +107,18 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
         <div v-if="searchResults.length > 0 || noResults" class="absolute top-full mt-2 left-0 w-full bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl rounded-xl shadow-xl border border-cyan-500/20 z-50 overflow-hidden">
           <ul v-if="searchResults.length > 0" class="max-h-60 overflow-y-auto">
             <li v-for="res in searchResults" :key="res.place_id">
-              <button @click="selectLocation(res.lat, res.lon, res.display_name)" class="w-full flex items-start gap-3 text-left px-4 py-3 hover:bg-cyan-50 dark:hover:bg-slate-800 transition-colors border-b border-slate-100 dark:border-slate-800 last:border-0">
-                <MapPin class="w-4 h-4 mt-0.5 text-cyan-500 flex-shrink-0" />
-                <div>
-                  <p class="text-sm font-bold text-slate-900 dark:text-white truncate">{{ res.display_name.split(',')[0] }}</p>
-                  <p class="text-xs text-slate-500 line-clamp-1">{{ res.display_name }}</p>
+              <div class="w-full flex items-center justify-between px-4 py-3 hover:bg-cyan-50 dark:hover:bg-slate-800 transition-colors border-b border-slate-100 dark:border-slate-800 last:border-0 cursor-pointer" @click="selectLocation(res.lat, res.lon, res.display_name)">
+                <div class="flex items-start gap-3 w-full overflow-hidden">
+                  <MapPin class="w-4 h-4 mt-0.5 text-cyan-500 flex-shrink-0" />
+                  <div class="flex-1 min-w-0 pr-2">
+                    <p class="text-sm font-bold text-slate-900 dark:text-white truncate">{{ res.display_name.split(',')[0] }}</p>
+                    <p class="text-xs text-slate-500 line-clamp-1">{{ res.display_name }}</p>
+                  </div>
                 </div>
-              </button>
+                <button @click.stop="toggleFavoriteResult(res, $event)" class="p-2 -mr-2 text-slate-300 hover:text-amber-400 transition-colors" title="Toggle Favorite">
+                  <Star :class="['w-5 h-5 transition-all', authStore.isFavorite(res.display_name.split(',')[0], res.lat, res.lon) ? 'fill-amber-400 text-amber-400' : '']" />
+                </button>
+              </div>
             </li>
           </ul>
           <div v-else-if="noResults" class="px-4 py-6 text-center">
@@ -103,6 +126,41 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
             <p class="text-sm font-bold text-slate-900 dark:text-white">No results found</p>
             <p class="text-xs text-slate-500 mt-1">Try checking your spelling or use more generic terms.</p>
           </div>
+        </div>
+      </div>
+
+      <!-- Favorites Dropdown -->
+      <div class="relative">
+        <button @click="showFavoritesMenu = !showFavoritesMenu" class="flex items-center justify-center px-3.5 py-2.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-cyan-500/30 rounded-xl shadow-lg transition-all hover:bg-slate-50 dark:hover:bg-slate-800/50 active:scale-95" title="Favorites">
+          <Star class="w-5 h-5 text-amber-500 drop-shadow-sm" />
+        </button>
+        
+        <div v-if="showFavoritesMenu" class="absolute top-full mt-2 right-0 w-72 bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl rounded-xl shadow-xl border border-cyan-500/20 z-50 overflow-hidden">
+          <div v-if="!authStore.isLoggedIn" class="p-6 text-center">
+            <Star class="w-6 h-6 text-slate-300 mx-auto mb-2" />
+            <p class="text-sm font-bold text-slate-900 dark:text-white">Log in to save favorites</p>
+          </div>
+          <div v-else-if="authStore.user?.favorites?.length === 0" class="p-6 text-center">
+            <Star class="w-6 h-6 text-slate-300 mx-auto mb-2" />
+            <p class="text-sm font-bold text-slate-900 dark:text-white">No favorites yet</p>
+            <p class="text-xs text-slate-500 mt-1">Search for a place and click the star to add it.</p>
+          </div>
+          <ul v-else class="max-h-60 overflow-y-auto">
+            <li v-for="fav in authStore.user?.favorites" :key="fav.lat + fav.lon">
+              <div class="w-full flex items-center justify-between px-4 py-3 hover:bg-cyan-50 dark:hover:bg-slate-800 transition-colors border-b border-slate-100 dark:border-slate-800 last:border-0 cursor-pointer" @click="selectLocation(fav.lat, fav.lon, fav.display_name)">
+                <div class="flex items-start gap-3 w-full overflow-hidden">
+                  <Star class="w-4 h-4 mt-0.5 fill-amber-400 text-amber-400 flex-shrink-0" />
+                  <div class="flex-1 min-w-0 pr-2">
+                    <p class="text-sm font-bold text-slate-900 dark:text-white truncate">{{ fav.name }}</p>
+                    <p class="text-xs text-slate-500 line-clamp-1">{{ fav.display_name }}</p>
+                  </div>
+                </div>
+                <button @click.stop="authStore.toggleFavorite(fav)" class="p-2 -mr-2 text-amber-400 hover:text-slate-400 transition-colors" title="Remove Favorite">
+                  <Star class="w-4 h-4 fill-amber-400" />
+                </button>
+              </div>
+            </li>
+          </ul>
         </div>
       </div>
 

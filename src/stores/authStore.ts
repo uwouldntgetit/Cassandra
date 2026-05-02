@@ -1,16 +1,24 @@
 import { defineStore } from 'pinia'
 
+export interface FavoritePlace {
+  lat: string
+  lon: string
+  name: string
+  display_name: string
+}
+
 interface User {
   name: string
   email: string
   initials: string
+  favorites: FavoritePlace[]
 }
 
 /**
  * AuthStore
- * Manages the user authentication state, storing user details and login status.
+ * Manages the user authentication state, storing user details, login status, and favorites.
  * 
- * Gestisce lo stato di autenticazione dell'utente, salvando i dettagli dell'utente e lo stato di accesso.
+ * Gestisce lo stato di autenticazione dell'utente, salvando i dettagli dell'utente, lo stato di accesso e i preferiti.
  */
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -33,7 +41,7 @@ export const useAuthStore = defineStore('auth', {
         ? nameParts[0][0].toUpperCase() + nameParts[1][0].toUpperCase()
         : name.substring(0, 2).toUpperCase()
 
-      this.user = { name, email, initials }
+      this.user = { name, email, initials, favorites: [] }
       this.isLoggedIn = true
     },
     /**
@@ -42,6 +50,26 @@ export const useAuthStore = defineStore('auth', {
     logout() {
       this.user = null
       this.isLoggedIn = false
+    },
+    /**
+     * Toggles a place in the user's favorites list.
+     */
+    toggleFavorite(place: FavoritePlace) {
+      if (!this.user) return
+
+      const index = this.user.favorites.findIndex(f => f.name === place.name && f.lat === place.lat && f.lon === place.lon)
+      if (index === -1) {
+        this.user.favorites.push(place)
+      } else {
+        this.user.favorites.splice(index, 1)
+      }
+    },
+    /**
+     * Checks if a place is currently favorited by the user.
+     */
+    isFavorite(name: string, lat: string, lon: string): boolean {
+      if (!this.user) return false
+      return this.user.favorites.some(f => f.name === name && f.lat === lat && f.lon === lon)
     }
   }
 })
