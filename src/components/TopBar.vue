@@ -26,10 +26,16 @@ const noResults = ref(false)
 
 const topBarRef = ref<HTMLElement | null>(null)
 
-const handleInput = () => noResults.value = false
+const handleInput = () => {
+  noResults.value = false
+  showLayersMenu.value = false
+  showFavoritesMenu.value = false
+}
 
 const handleSearch = async () => {
   if (!searchQuery.value.trim()) return
+  showLayersMenu.value = false
+  showFavoritesMenu.value = false
   isSearching.value = true
   noResults.value = false
   searchResults.value = [] 
@@ -60,6 +66,18 @@ const closeDropdowns = () => {
   showFavoritesMenu.value = false
   searchResults.value = []
   noResults.value = false
+}
+
+const toggleFavoritesMenu = () => {
+  const willShow = !showFavoritesMenu.value
+  closeDropdowns()
+  showFavoritesMenu.value = willShow
+}
+
+const toggleLayersMenu = () => {
+  const willShow = !showLayersMenu.value
+  closeDropdowns()
+  showLayersMenu.value = willShow
 }
 
 const toggleFavoriteResult = (res: any, event: Event) => {
@@ -131,11 +149,11 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 
       <!-- Favorites Dropdown -->
       <div class="relative">
-        <button @click="showFavoritesMenu = !showFavoritesMenu" class="flex items-center justify-center px-3.5 py-2.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-cyan-500/30 hover:border-cyan-500/60 rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50 active:scale-95" title="Favorites">
+        <button @click="toggleFavoritesMenu" class="flex items-center justify-center px-3.5 py-2.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-cyan-500/30 hover:border-cyan-500/60 rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50 active:scale-95" title="Favorites">
           <Star class="w-5 h-5 text-amber-500 drop-shadow-sm" />
         </button>
         
-        <div v-if="showFavoritesMenu" class="absolute top-full mt-2 right-0 w-72 bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl rounded-xl shadow-xl border border-cyan-500/20 z-50 overflow-hidden">
+        <div v-if="showFavoritesMenu" class="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-72 bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl rounded-xl shadow-xl border border-cyan-500/20 z-50 overflow-hidden">
           <div v-if="!authStore.isLoggedIn" class="p-6 text-center">
             <Star class="w-6 h-6 text-slate-300 mx-auto mb-2" />
             <p class="text-sm font-bold text-slate-900 dark:text-white">Log in to save favorites</p>
@@ -166,12 +184,12 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 
       <!-- Layers Dropdown -->
       <div class="relative">
-        <button @click="showLayersMenu = !showLayersMenu" class="w-full sm:w-auto flex items-center gap-2 px-5 py-2.5 text-sm bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-cyan-500/30 hover:border-cyan-500/60 rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50 active:scale-95">
+        <button @click="toggleLayersMenu" class="w-full sm:w-auto flex items-center gap-2 px-5 py-2.5 text-sm bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-cyan-500/30 hover:border-cyan-500/60 rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50 active:scale-95">
           <Layers class="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
           <span>Layers</span>
         </button>
         
-        <div v-if="showLayersMenu" class="absolute top-full mt-2 right-0 w-56 bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl rounded-xl shadow-xl border border-cyan-500/20 z-50 p-1.5 flex flex-col gap-1">
+        <div v-if="showLayersMenu" class="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-56 bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl rounded-xl shadow-xl border border-cyan-500/20 z-50 p-1.5 flex flex-col gap-1">
           
           <!-- Weather -->
           <button @click="layerStore.toggleLayer('weather')" class="w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg hover:bg-cyan-50 dark:hover:bg-slate-800 transition-all text-slate-900 dark:text-slate-100">
