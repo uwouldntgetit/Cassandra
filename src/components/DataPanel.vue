@@ -34,13 +34,13 @@ const hasActiveLayers = computed(() => {
   <!-- Main Container: fixed width to accommodate the custom scrollbar -->
   <div 
     v-show="hasActiveLayers"
-    class="absolute left-6 right-6 bottom-6 sm:bottom-auto sm:left-6 sm:right-auto sm:top-1/2 sm:-translate-y-1/2 z-40 sm:w-[350px] max-h-[35vh] sm:max-h-[70vh] flex flex-col pointer-events-none"
+    class="absolute left-6 right-6 bottom-6 md:bottom-auto md:left-6 md:right-auto md:top-1/2 md:-translate-y-1/2 z-40 md:w-[350px] max-h-[35vh] md:max-h-[70vh] flex flex-col pointer-events-none"
   >
     <!-- RTL direction shifts the scrollbar to the left side on desktop, padding creates visual separation -->
     <TransitionGroup 
       name="panel" 
       tag="div" 
-      class="flex flex-row sm:flex-col gap-3 sm:gap-4 overflow-x-auto sm:overflow-x-hidden sm:overflow-y-auto custom-scrollbar sm:px-0 py-2 sm:py-1 sm:pr-1 sm:pl-4 pointer-events-auto"
+      class="flex flex-row md:flex-col gap-3 md:gap-4 overflow-x-auto md:overflow-x-hidden md:overflow-y-auto custom-scrollbar md:px-0 py-2 md:py-1 md:pr-1 md:pl-4 pointer-events-auto"
     >
       <WeatherPanel 
         v-if="layerStore.activeLayers.weather" 
@@ -80,6 +80,7 @@ const hasActiveLayers = computed(() => {
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
   transform-origin: center center; 
   max-height: 600px; 
+  max-width: 600px;
 }
 
 .panel-enter-from, 
@@ -88,20 +89,33 @@ const hasActiveLayers = computed(() => {
   transform: translateX(-30px) scale(0.5); 
 }
 
-.panel-leave-to {
-  max-height: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  border: none;
-  margin-bottom: -16px; 
-  overflow: hidden;
+@media (min-width: 768px) {
+  .panel-leave-to {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border: none;
+    margin-bottom: -16px; 
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 767px) {
+  .panel-leave-to {
+    max-width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    border: none;
+    margin-right: -12px; 
+    overflow: hidden;
+  }
 }
 
 .custom-scrollbar {
   direction: rtl;
 }
 
-@media (max-width: 639px) {
+@media (max-width: 767px) {
   .custom-scrollbar {
     direction: ltr;
   }
