@@ -46,6 +46,7 @@ const hasActiveLayers = computed(() => {
         v-if="layerStore.activeLayers.weather" 
         key="weather"
         :isExpanded="expandedPanel === 'weather'"
+        :isLoading="layerStore.loadingLayers.weather"
         @toggle="togglePanel('weather')"
       />
       
@@ -53,6 +54,7 @@ const hasActiveLayers = computed(() => {
         v-if="layerStore.activeLayers.traffic" 
         key="traffic"
         :isExpanded="expandedPanel === 'traffic'"
+        :isLoading="layerStore.loadingLayers.traffic"
         @toggle="togglePanel('traffic')"
       />
       
@@ -60,6 +62,7 @@ const hasActiveLayers = computed(() => {
         v-if="layerStore.activeLayers.lighting" 
         key="lighting"
         :isExpanded="expandedPanel === 'lighting'"
+        :isLoading="layerStore.loadingLayers.lighting"
         @toggle="togglePanel('lighting')"
       />
       
@@ -67,6 +70,7 @@ const hasActiveLayers = computed(() => {
         v-if="layerStore.activeLayers.crowd" 
         key="crowd"
         :isExpanded="expandedPanel === 'crowd'"
+        :isLoading="layerStore.loadingLayers.crowd"
         @toggle="togglePanel('crowd')"
       />
     </TransitionGroup>

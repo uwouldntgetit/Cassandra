@@ -12,7 +12,7 @@ import BasePanel from './BasePanel.vue'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler)
 
-defineProps<{ isExpanded: boolean }>()
+defineProps<{ isExpanded: boolean, isLoading: boolean }>()
 const emit = defineEmits(['toggle'])
 
 const getChartOptions = () => ({
@@ -25,6 +25,7 @@ const crowdData = { labels: ['10', '11', '12', '13', '14', '15'], datasets: [{ d
 <template>
   <BasePanel
     :isExpanded="isExpanded"
+    :isLoading="isLoading"
     borderColorClass="border-purple-500/20"
     hoverColorClass="hover:text-purple-500"
     @toggle="emit('toggle')"
