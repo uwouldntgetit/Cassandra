@@ -41,7 +41,7 @@ onUnmounted(() => {
       
       <div class="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-cyan-500/20 overflow-hidden transform transition-all scale-[0.7] md:scale-100">
         
-        <div class="bg-gradient-to-r from-cyan-500 to-teal-500 p-6 text-center relative">
+        <div class="bg-gradient-to-r from-cyan-500 to-blue-500 p-6 text-center relative">
           <button @click="close" class="absolute top-4 right-4 text-white/80 hover:text-white transition-colors">
             <X class="w-5 h-5" />
           </button>

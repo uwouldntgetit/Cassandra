@@ -7,11 +7,13 @@
  */
 import { X, MapPin, Database, Users, Github } from 'lucide-vue-next'
 import { onMounted, onUnmounted } from 'vue'
+import BaseButton from './BaseButton.vue'
 
 const props = defineProps<{ isOpen: boolean }>()
 const emit = defineEmits(['close'])
 
 const close = () => emit('close')
+const openGithub = () => window.open('#', '_blank')
 
 const handleKeydown = (event: KeyboardEvent) => {
   if (event.key === 'Escape' && props.isOpen) {
@@ -39,7 +41,7 @@ onUnmounted(() => {
       <div class="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-cyan-500/20 overflow-hidden transform transition-all scale-[0.7] md:scale-100">
         
         <!-- Header -->
-        <div class="bg-gradient-to-r from-cyan-500 to-teal-500 p-6 text-center relative">
+        <div class="bg-gradient-to-r from-cyan-500 to-blue-500 p-6 text-center relative">
           <button @click="close" class="absolute top-4 right-4 text-white/80 hover:text-white transition-colors">
             <X class="w-5 h-5" />
           </button>
@@ -95,10 +97,10 @@ onUnmounted(() => {
           </div>
 
           <!-- Repo Button -->
-          <a href="#" target="_blank" class="w-full mt-2 flex items-center justify-center gap-2 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl shadow-lg hover:opacity-90 transition-all">
+          <BaseButton variant="github" class="w-full mt-2 py-3 rounded-xl" @click="openGithub">
             <Github class="w-5 h-5" />
             View on GitHub
-          </a>
+          </BaseButton>
           
         </div>
       </div>

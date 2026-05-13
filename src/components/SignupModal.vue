@@ -10,6 +10,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { Mail, Lock, User, X } from 'lucide-vue-next'
 import { useAuthStore } from '../stores/authStore'
+import BaseButton from './BaseButton.vue'
 
 const authStore = useAuthStore()
 
@@ -81,7 +82,7 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
 
       <div class="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-cyan-500/20 overflow-hidden transform transition-all scale-[0.7] md:scale-100">
         
-        <div class="bg-gradient-to-r from-cyan-500 to-teal-500 p-6 text-center relative">
+        <div class="bg-gradient-to-r from-cyan-500 to-blue-500 p-6 text-center relative">
           <button @click="close" class="absolute top-4 right-4 text-white/80 hover:text-white transition-colors">
             <X class="w-5 h-5" />
           </button>
@@ -128,9 +129,9 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
             {{ errorMessage }}
           </p>
 
-          <button @click="handleSignup" class="w-full py-3.5 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 hover:to-teal-400 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/30 transition-all transform hover:scale-[1.02] active:scale-[0.98] mt-2">
+          <BaseButton variant="primary" class="w-full py-3.5 rounded-xl mt-2" @click="handleSignup">
             Sign Up
-          </button>
+          </BaseButton>
 
           <p class="text-center text-xs text-slate-500 dark:text-slate-400 mt-4">
             Already have an account? <button @click.prevent="emit('switch-to-login')" class="text-cyan-600 dark:text-cyan-400 font-bold hover:underline">Sign in</button>
