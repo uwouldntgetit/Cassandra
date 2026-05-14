@@ -1,0 +1,223 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { 
+  LayoutDashboard, 
+  RadioTower, 
+  Users, 
+  Settings, 
+  BellRing, 
+  LogOut,
+  Map as MapIcon,
+  Activity,
+  Server,
+  AlertTriangle,
+  CheckCircle2
+} from 'lucide-vue-next'
+import { useAuthStore } from '../stores/authStore'
+import BaseButton from '../components/BaseButton.vue'
+
+const router = useRouter()
+const authStore = useAuthStore()
+
+const activeTab = ref('dashboard')
+
+const handleLogout = () => {
+  authStore.logout()
+  router.push('/')
+}
+
+const goToMap = () => {
+  router.push('/dashboard')
+}
+
+// Mock data for the table
+const systemEvents = [
+  { id: 1, type: 'error', message: 'Traffic Sensor T-04 disconnected', time: '2 mins ago', status: 'Unresolved' },
+  { id: 2, type: 'warning', message: 'High crowd density detected at Piazza Duomo', time: '15 mins ago', status: 'Investigating' },
+  { id: 3, type: 'success', message: 'Firmware updated on Lighting Sector 4', time: '1 hour ago', status: 'Resolved' },
+  { id: 4, type: 'success', message: 'Daily backup completed successfully', time: '3 hours ago', status: 'Resolved' },
+  { id: 5, type: 'error', message: 'API Rate limit exceeded on Weather Node', time: '5 hours ago', status: 'Unresolved' },
+]
+</script>
+
+<template>
+  <div class="flex h-screen w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans overflow-hidden">
+    
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col hidden md:flex shrink-0">
+      <div class="p-6 flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center text-white font-black text-xl">
+          C
+        </div>
+        <span class="text-xl font-bold tracking-tight">Admin<span class="text-cyan-500">OS</span></span>
+      </div>
+      
+      <div class="flex-1 px-4 space-y-2 mt-4 overflow-y-auto">
+        <button @click="activeTab = 'dashboard'" :class="['w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors', activeTab === 'dashboard' ? 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50']">
+          <LayoutDashboard class="w-5 h-5" /> Overview
+        </button>
+        <button @click="activeTab = 'sensors'" :class="['w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors', activeTab === 'sensors' ? 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50']">
+          <RadioTower class="w-5 h-5" /> Sensors
+        </button>
+        <button @click="activeTab = 'alerts'" :class="['w-full flex items-center justify-between px-4 py-3 rounded-xl font-medium transition-colors', activeTab === 'alerts' ? 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50']">
+          <div class="flex items-center gap-3"><BellRing class="w-5 h-5" /> Alerts</div>
+          <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">2</span>
+        </button>
+        <button @click="activeTab = 'users'" :class="['w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors', activeTab === 'users' ? 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50']">
+          <Users class="w-5 h-5" /> Users
+        </button>
+      </div>
+
+      <div class="p-4 border-t border-slate-200 dark:border-slate-800 space-y-2">
+        <button @click="activeTab = 'settings'" :class="['w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors', activeTab === 'settings' ? 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50']">
+          <Settings class="w-5 h-5" /> Settings
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
+      <!-- Header -->
+      <header class="h-20 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 shrink-0">
+        <h1 class="text-2xl font-bold hidden md:block">System Dashboard</h1>
+        
+        <!-- Mobile Menu Toggle (simplified for demo) -->
+        <div class="md:hidden flex items-center gap-2">
+           <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center text-white font-black">C</div>
+           <span class="font-bold">Admin<span class="text-cyan-500">OS</span></span>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <BaseButton variant="secondary" class="px-4 py-2 text-sm rounded-lg" @click="goToMap">
+            <MapIcon class="w-4 h-4" /> Live Map
+          </BaseButton>
+          
+          <div class="h-8 w-px bg-slate-200 dark:bg-slate-700 mx-2"></div>
+          
+          <div class="flex items-center gap-3">
+            <div class="text-right hidden sm:block">
+              <p class="text-sm font-bold leading-none">{{ authStore.user?.name || 'Operator' }}</p>
+              <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1 uppercase tracking-wider">System Admin</p>
+            </div>
+            <div class="w-10 h-10 rounded-full bg-cyan-100 dark:bg-cyan-900/50 text-cyan-600 dark:text-cyan-400 flex items-center justify-center font-bold">
+              {{ authStore.user?.initials || 'OP' }}
+            </div>
+            <button @click="handleLogout" class="p-2 text-slate-400 hover:text-red-500 transition-colors rounded-full hover:bg-red-50 dark:hover:bg-red-500/10 ml-1">
+              <LogOut class="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Scrollable Content -->
+      <div class="flex-1 overflow-y-auto p-4 md:p-8">
+        
+        <!-- Welcome Message -->
+        <div class="mb-8">
+          <h2 class="text-3xl font-black mb-1">Welcome back, {{ authStore.user?.name?.split(' ')[0] || 'Admin' }}! 👋</h2>
+          <p class="text-slate-500 dark:text-slate-400">Here is what's happening in Trento Smart City today.</p>
+        </div>
+
+        <!-- Metrics Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="flex justify-between items-start mb-4">
+              <div class="w-10 h-10 rounded-xl bg-cyan-100 dark:bg-cyan-900/30 flex items-center justify-center text-cyan-600 dark:text-cyan-400">
+                <RadioTower class="w-5 h-5" />
+              </div>
+              <span class="flex items-center gap-1 text-xs font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-md">
+                98% Online
+              </span>
+            </div>
+            <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Active Sensors</h3>
+            <p class="text-3xl font-black">2,405</p>
+          </div>
+
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="flex justify-between items-start mb-4">
+              <div class="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
+                <Server class="w-5 h-5" />
+              </div>
+              <span class="flex items-center gap-1 text-xs font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-md">
+                Healthy
+              </span>
+            </div>
+            <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">System Load</h3>
+            <p class="text-3xl font-black">34%</p>
+          </div>
+
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="flex justify-between items-start mb-4">
+              <div class="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400">
+                <AlertTriangle class="w-5 h-5" />
+              </div>
+              <span class="flex items-center gap-1 text-xs font-bold text-red-500 bg-red-50 dark:bg-red-500/10 px-2 py-1 rounded-md">
+                Needs Attention
+              </span>
+            </div>
+            <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Active Alerts</h3>
+            <p class="text-3xl font-black">2</p>
+          </div>
+
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="flex justify-between items-start mb-4">
+              <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                <Activity class="w-5 h-5" />
+              </div>
+              <span class="flex items-center gap-1 text-xs font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-md">
+                +12% vs ytd
+              </span>
+            </div>
+            <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">API Requests</h3>
+            <p class="text-3xl font-black">142k</p>
+          </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+          <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <h3 class="font-bold text-lg">Recent System Events</h3>
+            <button class="text-sm text-cyan-600 dark:text-cyan-400 font-bold hover:underline">View All</button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 uppercase text-xs font-bold">
+                <tr>
+                  <th class="px-6 py-4">Event Type</th>
+                  <th class="px-6 py-4">Message</th>
+                  <th class="px-6 py-4">Time</th>
+                  <th class="px-6 py-4 text-right">Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 dark:divide-slate-800/50">
+                <tr v-for="event in systemEvents" :key="event.id" class="hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors">
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-2 font-medium">
+                      <AlertTriangle v-if="event.type === 'error'" class="w-4 h-4 text-red-500" />
+                      <AlertTriangle v-else-if="event.type === 'warning'" class="w-4 h-4 text-amber-500" />
+                      <CheckCircle2 v-else class="w-4 h-4 text-emerald-500" />
+                      <span class="capitalize">{{ event.type }}</span>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 font-medium text-slate-700 dark:text-slate-300">{{ event.message }}</td>
+                  <td class="px-6 py-4 text-slate-500">{{ event.time }}</td>
+                  <td class="px-6 py-4 text-right">
+                    <span :class="['px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider', 
+                      event.status === 'Resolved' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' :
+                      event.status === 'Investigating' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
+                      'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                    ]">
+                      {{ event.status }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</template>

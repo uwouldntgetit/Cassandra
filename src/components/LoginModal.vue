@@ -6,11 +6,13 @@
  * Modale di autenticazione per gli utenti esistenti.
  */
 import { ref, onMounted, onUnmounted } from 'vue' 
+import { useRouter } from 'vue-router'
 import { Mail, Lock, X } from 'lucide-vue-next'
 import { useAuthStore } from '../stores/authStore'
 import BaseButton from './BaseButton.vue'
 
 const authStore = useAuthStore()
+const router = useRouter()
 
 const email = ref('')
 const password = ref('')
@@ -42,6 +44,7 @@ const handleLogin = () => {
   password.value = ''
   errorMessage.value = ''
   emit('close')
+  router.push('/admin')
 }
 
 const close = () => {

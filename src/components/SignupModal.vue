@@ -8,11 +8,13 @@
  * Valida l'input dell'utente e crea una nuova sessione tramite l'AuthStore.
  */
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { Mail, Lock, User, X } from 'lucide-vue-next'
 import { useAuthStore } from '../stores/authStore'
 import BaseButton from './BaseButton.vue'
 
 const authStore = useAuthStore()
+const router = useRouter()
 
 const name = ref('')
 const email = ref('')
@@ -57,6 +59,7 @@ const handleSignup = () => {
   confirmPassword.value = ''
   errorMessage.value = ''
   emit('close')
+  router.push('/admin')
 }
 
 const close = () => {

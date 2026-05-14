@@ -6,13 +6,15 @@
  * Componente di navigazione laterale con i dettagli della sessione utente e le impostazioni globali.
  */
 import { ref, onMounted, onUnmounted } from 'vue'
-import { Menu, X, Settings, Info, LogIn, LogOut, Moon, Sun } from 'lucide-vue-next'
+import { useRouter } from 'vue-router'
+import { Menu, X, Settings, Info, LogIn, LogOut, Moon, Sun, LayoutDashboard } from 'lucide-vue-next'
 import { useAuthStore } from '../stores/authStore'
 
 const props = defineProps<{ isDark: boolean }>()
 const emit = defineEmits(['toggle-theme', 'open-login', 'open-settings', 'open-about'])
 
 const authStore = useAuthStore()
+const router = useRouter()
 
 const isOpen = ref(false)
 
@@ -82,7 +84,11 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
             </div>
             <p class="font-bold text-slate-900 dark:text-white text-xs md:text-sm">{{ authStore.user?.name }}</p>
             <p class="text-[10px] md:text-xs text-slate-500 mb-3 md:mb-4">{{ authStore.user?.email }}</p>
-            <button @click="authStore.logout()" class="w-full py-2 md:py-2.5 flex items-center justify-center gap-1.5 md:gap-2 text-xs md:text-sm font-bold text-red-500 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-lg md:rounded-xl transition-colors">
+            <button @click="router.push('/admin'); isOpen = false" class="w-full py-2 md:py-2.5 mb-2 flex items-center justify-center gap-1.5 md:gap-2 text-xs md:text-sm font-bold text-cyan-700 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-900/30 hover:bg-cyan-100 dark:hover:bg-cyan-900/50 rounded-lg md:rounded-xl transition-colors">
+              <LayoutDashboard class="w-3.5 h-3.5 md:w-4 md:h-4" />
+              Admin Panel
+            </button>
+            <button @click="authStore.logout(); router.push('/')" class="w-full py-2 md:py-2.5 flex items-center justify-center gap-1.5 md:gap-2 text-xs md:text-sm font-bold text-red-500 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-lg md:rounded-xl transition-colors">
               <LogOut class="w-3.5 h-3.5 md:w-4 md:h-4" />
               Logout
             </button>
