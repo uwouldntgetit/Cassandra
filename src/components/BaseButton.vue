@@ -2,6 +2,8 @@
 /**
  * BaseButton.vue
  * A unified button component to enforce consistent styling across the application.
+ * 
+ * Una componente per il bottone per mantenere uno stile uniforme.
  */
 import { computed } from 'vue'
 
