@@ -1,28 +1,105 @@
-# Trento Smart City Dashboard
+<div align="center">
+  <h1>🏙️ Cassandra</h1>
+  <p><strong>A Next-Generation Real-Time Urban Monitoring System</strong></p>
 
-Una dashboard interattiva per la visualizzazione e la gestione dei dati in tempo reale della città di Trento.
+  <p>
+    <img src="https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D" alt="Vue.js" />
+    <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+    <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
+    <img src="https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E" alt="Vite" />
+  </p>
+</div>
 
-## Stack Tecnologico (Frontend)
+<br />
 
-Questo progetto è stato sviluppato utilizzando le seguenti tecnologie e librerie:
+## 📖 Overview
+
+**Cassandra** è un'applicazione web all'avanguardia progettata per il monitoraggio in tempo reale delle infrastrutture e degli eventi della città di Trento. Attraverso un'interfaccia interattiva e data-driven, permette ad amministratori e cittadini di visualizzare livelli di affollamento, stato dell'illuminazione pubblica, flussi di traffico e molto altro.
+
+---
+
+## ✨ Funzionalità Principali
+
+- 🗺️ **Mappa Interattiva Avanzata**: Navigazione fluida della città basata su Leaflet.
+- 🔥 **Heatmap ad Alte Prestazioni**: Rendering su Canvas (`leaflet.heat`) per visualizzare grandi moli di dati (Affollamento e Smart Lighting) in tempo reale tramite gradienti neon personalizzati.
+- 🔐 **Pannello di Amministrazione Sicuro**: Sezione privata (dietro login simulato) con grafici analitici (`Chart.js`) e metriche di sistema.
+- 🌗 **Tema Dinamico (Dark/Light Mode)**: Supporto nativo per temi chiari e scuri, con una palette colori accuratamente studiata per non affaticare la vista.
+- 📍 **Ricerca e Preferiti**: Geocodifica live tramite l'API Nominatim di OpenStreetMap e salvataggio delle posizioni preferite dell'utente.
+- 🛡️ **UX Protettiva**: Sistemi di prevenzione sovrapposizione visiva (es. avvisi di conflitto tra layer) con salvataggio delle preferenze utente nel `localStorage`.
+
+---
+
+## 🛠️ Stack Tecnologico
+
+Il front-end è stato architettato utilizzando le tecnologie più moderne per garantire velocità, manutenibilità e scalabilità:
 
 ### Core & Framework
-* **[Vue 3](https://vuejs.org/)**: Framework JavaScript progressivo per la costruzione dell'interfaccia utente (utilizzando Composition API e `<script setup>`).
-* **[TypeScript](https://www.typescriptlang.org/)**: Superset tipizzato di JavaScript per garantire robustezza e manutenibilità del codice.
-* **[Vite](https://vitejs.dev/)**: Build tool di nuova generazione, estremamente veloce per lo sviluppo locale e l'ottimizzazione del bundle di produzione.
+* **[Vue 3 (Composition API)](https://vuejs.org/)**: Gestione reattiva dell'interfaccia.
+* **[TypeScript](https://www.typescriptlang.org/)**: Tipizzazione statica per una maggiore robustezza.
+* **[Vite](https://vitejs.dev/)**: Hot Module Replacement fulmineo e build super ottimizzate.
 
-### Gestione dello Stato & Navigazione
-* **[Pinia](https://pinia.vuejs.org/)**: Lo store ufficiale di Vue per la gestione dello stato globale (usato per gestire i layer attivi, il tema dark/light e l'autenticazione).
-* **[Vue Router](https://router.vuejs.org/)**: Libreria di routing ufficiale per Vue, utilizzata per gestire le viste (es. Dashboard, Landing Page, Admin Panel).
+### State & Routing
+* **[Pinia](https://pinia.vuejs.org/)**: Gestione centralizzata dello stato (Layer, Autenticazione, Notifiche).
+* **[Vue Router](https://router.vuejs.org/)**: Navigazione Single Page Application (SPA).
 
-### UI & Styling
-* **[Tailwind CSS](https://tailwindcss.com/)**: Framework CSS *utility-first* per creare design responsivi e moderni in modo rapido e coerente (inclusa la Dark Mode).
-* **[DaisyUI](https://daisyui.com/)**: Libreria di componenti elegante basata su Tailwind CSS.
+### UI, Styling & Data Visualization
+* **[Tailwind CSS](https://tailwindcss.com/)** & **[DaisyUI](https://daisyui.com/)**: Design system utility-first per componenti eleganti e veloci.
+* **[Leaflet](https://leafletjs.com/)** & **[Leaflet.heat](https://github.com/Leaflet/Leaflet.heat)**: Motore cartografico e rendering delle mappe di calore.
+* **[Chart.js](https://www.chartjs.org/)** & **[vue-chartjs](https://vue-chartjs.org/)**: Componenti grafici (Doughnut, Line charts).
+* **[Lucide Vue Next](https://lucide.dev/)**: Set di icone vettoriali moderne e pulite.
 
-### Mappe & Visualizzazione Dati
-* **[Leaflet](https://leafletjs.com/)**: Libreria JavaScript open-source leader per mappe interattive, fluide e leggere.
-* **[Leaflet.heat](https://github.com/Leaflet/Leaflet.heat)**: Plugin ufficiale di Leaflet per la generazione di Heatmap (mappe di calore) basate su Canvas. Lo abbiamo utilizzato per i layer ad alta densità (Affollamento e Smart Lighting).
-* **[Chart.js](https://www.chartjs.org/)** & **[vue-chartjs](https://vue-chartjs.org/)**: Utilizzati per renderizzare grafici analitici (es. grafici a linee e ad anello nel pannello di amministrazione).
+---
 
-### Iconografia
-* **[Lucide Vue Next](https://lucide.dev/)**: Collezione di icone vettoriali pulite, moderne e personalizzabili, usate nei bottoni, nei menu e nei pannelli di controllo.
+## 🚀 Getting Started
+
+### Prerequisiti
+Assicurati di avere installato **Node.js** (versione 18+ consigliata) sul tuo sistema.
+
+### Installazione
+
+1. Clona il repository:
+   ```bash
+   git clone https://github.com/uwouldntgetit/Cassandra.git
+   cd Cassandra
+   ```
+
+2. Installa le dipendenze:
+   ```bash
+   npm install
+   ```
+
+3. Avvia il server di sviluppo locale:
+   ```bash
+   npm run dev
+   ```
+
+4. Apri il browser all'indirizzo `http://localhost:5173/`.
+
+### Build per la Produzione
+Per generare i file statici ottimizzati per il deploy:
+```bash
+npm run build
+```
+I file saranno generati nella cartella `/dist`.
+
+---
+
+## 📂 Struttura del Progetto
+
+```text
+src/
+├── assets/       # Risorse statiche (es. logo)
+├── components/   # Componenti Vue riutilizzabili (TopBar, Modals, Map)
+├── composables/  # Logica riutilizzabile (es. useEventSimulator per notifiche)
+├── router/       # Configurazione delle rotte Vue Router
+├── stores/       # Store Pinia (auth, layer, notifiche)
+├── views/        # Pagine principali (Dashboard, Admin, Landing)
+├── App.vue       # Root component (Orchestratore)
+└── main.ts       # Entry point dell'applicazione
+```
+
+---
+
+<div align="center">
+  <p>Sviluppato per il corso di <strong>Ingegneria del Software</strong> - Università di Trento</p>
+</div>
