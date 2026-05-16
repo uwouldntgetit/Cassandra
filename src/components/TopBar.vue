@@ -24,6 +24,10 @@ const isSearching = ref(false)
 const searchResults = ref<any[]>([])
 const noResults = ref(false) 
 
+const showWarningModal = ref(false)
+const pendingLayer = ref<string>('')
+const dontShowAgain = ref(false)
+
 const topBarRef = ref<HTMLElement | null>(null)
 
 const handleInput = () => {
@@ -78,6 +82,40 @@ const toggleLayersMenu = () => {
   const willShow = !showLayersMenu.value
   closeDropdowns()
   showLayersMenu.value = willShow
+}
+
+const handleLayerToggle = (layer: keyof typeof layerStore.activeLayers) => {
+  if ((layer === 'crowd' && layerStore.activeLayers.lighting && !layerStore.activeLayers.crowd) ||
+      (layer === 'lighting' && layerStore.activeLayers.crowd && !layerStore.activeLayers.lighting)) {
+    
+    const hideWarning = localStorage.getItem('hideLayerWarning') === 'true'
+    
+    if (!hideWarning) {
+      pendingLayer.value = layer
+      dontShowAgain.value = false
+      showWarningModal.value = true
+      closeDropdowns()
+      return
+    }
+  }
+  
+  layerStore.toggleLayer(layer)
+}
+
+const confirmToggle = () => {
+  if (dontShowAgain.value) {
+    localStorage.setItem('hideLayerWarning', 'true')
+  }
+  if (pendingLayer.value) {
+    layerStore.toggleLayer(pendingLayer.value as keyof typeof layerStore.activeLayers)
+  }
+  showWarningModal.value = false
+  pendingLayer.value = ''
+}
+
+const cancelToggle = () => {
+  showWarningModal.value = false
+  pendingLayer.value = ''
 }
 
 const toggleFavoriteResult = (res: any, event: Event) => {
@@ -204,25 +242,25 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
           </div>
           
           <!-- Weather -->
-          <button @click="layerStore.toggleLayer('weather')" class="w-full flex items-center justify-between px-2 py-1.5 md:px-3 md:py-2 text-xs md:text-sm rounded-md md:rounded-lg hover:bg-cyan-50 dark:hover:bg-slate-800 transition-all text-slate-900 dark:text-slate-100">
+          <button @click="handleLayerToggle('weather')" class="w-full flex items-center justify-between px-2 py-1.5 md:px-3 md:py-2 text-xs md:text-sm rounded-md md:rounded-lg hover:bg-cyan-50 dark:hover:bg-slate-800 transition-all text-slate-900 dark:text-slate-100">
             <span class="flex items-center gap-2 md:gap-2.5"><div :class="['w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-sky-500', layerStore.activeLayers.weather ? 'opacity-100' : 'opacity-30']"></div>Weather</span>
             <div :class="['w-6 h-3 md:w-8 md:h-4 rounded-full flex items-center px-0.5 md:px-1 transition-all', layerStore.activeLayers.weather ? 'bg-cyan-500' : 'bg-slate-300 dark:bg-slate-700']"><div :class="['w-2 h-2 md:w-2.5 md:h-2.5 bg-white rounded-full transition-all transform', layerStore.activeLayers.weather ? 'translate-x-3 md:translate-x-3.5' : 'translate-x-0']"></div></div>
           </button>
           
           <!-- Traffic -->
-          <button @click="layerStore.toggleLayer('traffic')" class="w-full flex items-center justify-between px-2 py-1.5 md:px-3 md:py-2 text-xs md:text-sm rounded-md md:rounded-lg hover:bg-cyan-50 dark:hover:bg-slate-800 transition-all text-slate-900 dark:text-slate-100">
+          <button @click="handleLayerToggle('traffic')" class="w-full flex items-center justify-between px-2 py-1.5 md:px-3 md:py-2 text-xs md:text-sm rounded-md md:rounded-lg hover:bg-cyan-50 dark:hover:bg-slate-800 transition-all text-slate-900 dark:text-slate-100">
             <span class="flex items-center gap-2 md:gap-2.5"><div :class="['w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-orange-500', layerStore.activeLayers.traffic ? 'opacity-100' : 'opacity-30']"></div>Traffic Flow</span>
             <div :class="['w-6 h-3 md:w-8 md:h-4 rounded-full flex items-center px-0.5 md:px-1 transition-all', layerStore.activeLayers.traffic ? 'bg-cyan-500' : 'bg-slate-300 dark:bg-slate-700']"><div :class="['w-2 h-2 md:w-2.5 md:h-2.5 bg-white rounded-full transition-all transform', layerStore.activeLayers.traffic ? 'translate-x-3 md:translate-x-3.5' : 'translate-x-0']"></div></div>
           </button>
 
           <!-- Lighting -->
-          <button @click="layerStore.toggleLayer('lighting')" class="w-full flex items-center justify-between px-2 py-1.5 md:px-3 md:py-2 text-xs md:text-sm rounded-md md:rounded-lg hover:bg-cyan-50 dark:hover:bg-slate-800 transition-all text-slate-900 dark:text-slate-100">
+          <button @click="handleLayerToggle('lighting')" class="w-full flex items-center justify-between px-2 py-1.5 md:px-3 md:py-2 text-xs md:text-sm rounded-md md:rounded-lg hover:bg-cyan-50 dark:hover:bg-slate-800 transition-all text-slate-900 dark:text-slate-100">
             <span class="flex items-center gap-2 md:gap-2.5"><div :class="['w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-yellow-500', layerStore.activeLayers.lighting ? 'opacity-100' : 'opacity-30']"></div>Smart Lighting</span>
             <div :class="['w-6 h-3 md:w-8 md:h-4 rounded-full flex items-center px-0.5 md:px-1 transition-all', layerStore.activeLayers.lighting ? 'bg-cyan-500' : 'bg-slate-300 dark:bg-slate-700']"><div :class="['w-2 h-2 md:w-2.5 md:h-2.5 bg-white rounded-full transition-all transform', layerStore.activeLayers.lighting ? 'translate-x-3 md:translate-x-3.5' : 'translate-x-0']"></div></div>
           </button>
 
           <!-- Crowd Density -->
-          <button @click="layerStore.toggleLayer('crowd')" class="w-full flex items-center justify-between px-2 py-1.5 md:px-3 md:py-2 text-xs md:text-sm rounded-md md:rounded-lg hover:bg-cyan-50 dark:hover:bg-slate-800 transition-all text-slate-900 dark:text-slate-100">
+          <button @click="handleLayerToggle('crowd')" class="w-full flex items-center justify-between px-2 py-1.5 md:px-3 md:py-2 text-xs md:text-sm rounded-md md:rounded-lg hover:bg-cyan-50 dark:hover:bg-slate-800 transition-all text-slate-900 dark:text-slate-100">
             <span class="flex items-center gap-2 md:gap-2.5"><div :class="['w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-purple-500', layerStore.activeLayers.crowd ? 'opacity-100' : 'opacity-30']"></div>Crowd Density</span>
             <div :class="['w-6 h-3 md:w-8 md:h-4 rounded-full flex items-center px-0.5 md:px-1 transition-all', layerStore.activeLayers.crowd ? 'bg-cyan-500' : 'bg-slate-300 dark:bg-slate-700']"><div :class="['w-2 h-2 md:w-2.5 md:h-2.5 bg-white rounded-full transition-all transform', layerStore.activeLayers.crowd ? 'translate-x-3 md:translate-x-3.5' : 'translate-x-0']"></div></div>
           </button>
@@ -230,6 +268,35 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- Layer Conflict Warning Modal -->
+  <div v-if="showWarningModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm px-4 pointer-events-auto">
+    <div class="bg-white dark:bg-slate-900 border border-cyan-500/30 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+      <div class="p-6">
+        <div class="flex items-center gap-3 mb-4 text-amber-500">
+          <AlertCircle class="w-6 h-6" />
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white">Layer Overlap Warning</h3>
+        </div>
+        <p class="text-sm text-slate-600 dark:text-slate-300 mb-6 leading-relaxed">
+          Visualizing both Crowd Density and Smart Lighting simultaneously might be confusing as their heatmaps can overlap.
+        </p>
+        
+        <label class="flex items-center gap-3 mb-6 cursor-pointer group w-max">
+          <input type="checkbox" v-model="dontShowAgain" class="w-4 h-4 rounded border-slate-300 dark:border-slate-700 text-cyan-500 focus:ring-cyan-500 dark:bg-slate-800" />
+          <span class="text-sm text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">Don't show this again</span>
+        </label>
+
+        <div class="flex justify-end gap-3">
+          <button @click="cancelToggle" class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors">
+            Cancel
+          </button>
+          <button @click="confirmToggle" class="px-4 py-2 text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-500 rounded-lg shadow-lg shadow-cyan-500/30 transition-colors">
+            OK
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
