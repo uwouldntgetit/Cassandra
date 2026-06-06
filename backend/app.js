@@ -18,6 +18,8 @@ app.use(express.json())
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
+app.get('/', (req, res) => res.redirect('/api-docs'))
+
 // Rotte pubbliche
 app.use('/api/v1/authentications', authRouter)
 app.use('/api/v1/layers',          layersRouter)
@@ -25,9 +27,8 @@ app.use('/api/v1/predictions',     predictionsRouter)
 app.use('/api/v1/notifications',   notificationsRouter)
 
 // Rotte protette (JWT richiesto)
-app.use(tokenChecker)
-app.use('/api/v1/users', usersRouter)
-app.use('/api/v1/admin', adminRouter)
+app.use('/api/v1/users', tokenChecker, usersRouter)
+app.use('/api/v1/admin', tokenChecker, adminRouter)
 
 app.use((req, res) => {
   res.status(404).json({ success: false, message: 'Route not found.' })
