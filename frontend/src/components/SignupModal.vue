@@ -7,14 +7,15 @@
  * Modale di registrazione per i nuovi utenti.
  * Valida l'input dell'utente e crea una nuova sessione tramite l'AuthStore.
  */
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { Mail, Lock, User, X } from 'lucide-vue-next'
 import { useAuthStore } from '../stores/authStore'
 import BaseButton from './BaseButton.vue'
 
 const authStore = useAuthStore()
-const router = useRouter()
+const router    = useRouter()
+const googleBtnRef = ref<HTMLElement | null>(null)
 
 const name = ref('')
 const email = ref('')
@@ -25,12 +26,14 @@ const errorMessage = ref('')
 const props = defineProps<{ isOpen: boolean }>()
 const emit = defineEmits(['close', 'switch-to-login'])
 
-const handleSignup = () => {
+const isLoading = ref(false)
+
+const handleSignup = async () => {
   errorMessage.value = ''
 
   if (!name.value || !email.value || !password.value || !confirmPassword.value) {
     errorMessage.value = 'Please fill in all fields.'
-    return 
+    return
   }
 
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -44,37 +47,57 @@ const handleSignup = () => {
     return
   }
 
-  // Password confirmation validation
   if (password.value !== confirmPassword.value) {
     errorMessage.value = 'Passwords do not match.'
     return
   }
 
-  // Pass full name to AuthStore
-  authStore.login(email.value, name.value)
-  
-  name.value = ''
-  email.value = ''
-  password.value = ''
-  confirmPassword.value = ''
-  errorMessage.value = ''
-  emit('close')
-  router.push('/admin')
-}
-
-const close = () => {
-  errorMessage.value = ''
-  emit('close')
-}
-
-const handleKeydown = (event: KeyboardEvent) => {
-  if (event.key === 'Escape' && props.isOpen) {
-    close()
+  isLoading.value = true
+  try {
+    await authStore.register(name.value, email.value, password.value)
+    name.value = ''
+    email.value = ''
+    password.value = ''
+    confirmPassword.value = ''
+    emit('close')
+    router.push(authStore.user?.role === 'admin' ? '/admin' : '/dashboard')
+  } catch (e: any) {
+    errorMessage.value = e.message || 'Registration failed. Try again.'
+  } finally {
+    isLoading.value = false
   }
 }
 
-onMounted(() => document.addEventListener('keydown', handleKeydown))
-onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
+const close = () => { errorMessage.value = ''; emit('close') }
+
+const handleGoogleCallback = async (response: any) => {
+  errorMessage.value = ''
+  isLoading.value = true
+  try {
+    await authStore.googleLogin(response.credential)
+    emit('close')
+    router.push(authStore.user?.role === 'admin' ? '/admin' : '/dashboard')
+  } catch (e: any) {
+    errorMessage.value = e.message || 'Google Sign-In failed.'
+  } finally {
+    isLoading.value = false
+  }
+}
+
+function initGoogleButton() {
+  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
+  if (!clientId || !(window as any).google || !googleBtnRef.value) return
+  ;(window as any).google.accounts.id.initialize({ client_id: clientId, callback: handleGoogleCallback })
+  ;(window as any).google.accounts.id.renderButton(googleBtnRef.value, {
+    theme: 'outline', size: 'large', width: googleBtnRef.value.offsetWidth || 300, locale: 'en'
+  })
+}
+
+watch(() => props.isOpen, (open) => { if (open) setTimeout(() => initGoogleButton(), 100) })
+
+onMounted(() => {
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && props.isOpen) close() })
+})
 </script>
 
 <template>
@@ -94,7 +117,17 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
         </div>
 
         <div class="p-8 space-y-4">
-          
+
+          <!-- Google Sign-In -->
+          <div class="space-y-3">
+            <div ref="googleBtnRef" class="flex justify-center min-h-[44px]"></div>
+            <div class="flex items-center gap-3">
+              <div class="h-px flex-1 bg-slate-200 dark:bg-slate-700"></div>
+              <span class="text-xs text-slate-400">or sign up with email</span>
+              <div class="h-px flex-1 bg-slate-200 dark:bg-slate-700"></div>
+            </div>
+          </div>
+
           <div class="space-y-1.5">
             <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">Full Name</label>
             <div class="relative">
@@ -132,8 +165,8 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
             {{ errorMessage }}
           </p>
 
-          <BaseButton variant="primary" class="w-full py-3.5 rounded-xl mt-2" @click="handleSignup">
-            Sign Up
+          <BaseButton variant="primary" class="w-full py-3.5 rounded-xl mt-2" @click="handleSignup" :disabled="isLoading">
+            {{ isLoading ? 'Creating account...' : 'Sign Up' }}
           </BaseButton>
 
           <p class="text-center text-xs text-slate-500 dark:text-slate-400 mt-4">

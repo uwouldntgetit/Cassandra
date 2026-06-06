@@ -12,5 +12,10 @@ const pinia = createPinia()
 const app = createApp(App)
 
 app.use(pinia)
+
+// Ripristina sessione da localStorage prima che il router valuti le route protette
+import { useAuthStore } from './stores/authStore'
+useAuthStore(pinia).init()
+
 app.use(router)
 app.mount('#app')

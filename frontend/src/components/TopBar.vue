@@ -8,17 +8,20 @@
  * Si interfaccia con l'API Nominatim per i risultati di geocodifica della ricerca.
  */
 import { ref, onMounted, onUnmounted } from 'vue'
-import { Search, Layers, Loader2, MapPin, AlertCircle, Star, Eye, EyeOff } from 'lucide-vue-next'
+import { Search, Layers, Loader2, MapPin, AlertCircle, Star, Eye, EyeOff, Bell, BellRing, X, CheckCircle2, TriangleAlert } from 'lucide-vue-next'
 import { useLayerStore } from '../stores/layerStore'
 import { useAuthStore } from '../stores/authStore'
+import { useNotificationStore } from '../stores/notificationStore'
 
 const layerStore = useLayerStore()
 const authStore = useAuthStore()
+const notificationStore = useNotificationStore()
 
 const emit = defineEmits(['fly-to'])
 
 const showLayersMenu = ref(false)
 const showFavoritesMenu = ref(false)
+const showNotificationsMenu = ref(false)
 const searchQuery = ref('')
 const isSearching = ref(false)
 const searchResults = ref<any[]>([])
@@ -68,8 +71,25 @@ const selectLocation = (lat: string, lon: string, name: string) => {
 const closeDropdowns = () => {
   showLayersMenu.value = false
   showFavoritesMenu.value = false
+  showNotificationsMenu.value = false
   searchResults.value = []
   noResults.value = false
+}
+
+const toggleNotificationsMenu = () => {
+  const willShow = !showNotificationsMenu.value
+  closeDropdowns()
+  showNotificationsMenu.value = willShow
+}
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const m = Math.floor(diff / 60000)
+  if (m < 1) return 'just now'
+  if (m < 60) return `${m}min ago`
+  const h = Math.floor(m / 60)
+  if (h < 24) return `${h}h ago`
+  return `${Math.floor(h / 24)}d ago`
 }
 
 const toggleFavoritesMenu = () => {
@@ -138,8 +158,14 @@ const handleClickOutside = (event: MouseEvent) => {
   }
 }
 
-onMounted(() => document.addEventListener('click', handleClickOutside))
-onUnmounted(() => document.removeEventListener('click', handleClickOutside))
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+  notificationStore.startPolling()
+})
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+  notificationStore.stopPolling()
+})
 </script>
 
 <template>
@@ -220,8 +246,76 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
         </div>
       </div>
 
-      <!-- Layers Dropdown -->
+      <!-- Notifications Bell -->
       <div class="relative order-2 md:order-3 shrink-0">
+        <button @click="toggleNotificationsMenu" class="relative flex items-center justify-center p-1.5 md:px-3.5 md:py-2.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-cyan-500/30 hover:border-cyan-500/60 rounded-lg md:rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50 active:scale-95" title="Notifications">
+          <BellRing v-if="notificationStore.unreadCount > 0" class="w-4 h-4 md:w-5 md:h-5 text-red-500 animate-[bell-ring_1s_ease-in-out_infinite]" />
+          <Bell v-else class="w-4 h-4 md:w-5 md:h-5 text-slate-500 dark:text-slate-400" />
+          <span v-if="notificationStore.unreadCount > 0" class="absolute -top-1 -right-1 min-w-[16px] h-4 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center px-0.5 shadow-md">
+            {{ notificationStore.unreadCount > 9 ? '9+' : notificationStore.unreadCount }}
+          </span>
+        </button>
+
+        <div v-if="showNotificationsMenu" class="absolute top-full mt-2 right-0 w-72 md:w-80 bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl rounded-xl shadow-xl border border-cyan-500/20 z-50 overflow-hidden">
+          <!-- Header -->
+          <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-800">
+            <span class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <Bell class="w-4 h-4 text-cyan-500" />
+              Notifications
+              <span v-if="notificationStore.unreadCount > 0" class="px-1.5 py-0.5 bg-red-500 text-white text-[9px] font-black rounded-full">{{ notificationStore.unreadCount }}</span>
+            </span>
+            <button v-if="notificationStore.active.length > 0" @click="notificationStore.dismissAll()" class="text-[10px] text-slate-500 hover:text-slate-800 dark:hover:text-white font-medium transition-colors">
+              Dismiss all
+            </button>
+          </div>
+
+          <!-- Lista notifiche -->
+          <div class="max-h-72 overflow-y-auto">
+            <!-- Empty state -->
+            <div v-if="notificationStore.active.length === 0" class="py-8 px-4 text-center">
+              <CheckCircle2 class="w-8 h-8 text-emerald-400 mx-auto mb-2" />
+              <p class="text-sm font-bold text-slate-900 dark:text-white">All clear!</p>
+              <p class="text-xs text-slate-500 mt-1">No active alerts at the moment.</p>
+            </div>
+
+            <!-- Notifica -->
+            <div
+              v-for="n in notificationStore.active"
+              :key="n._id"
+              class="flex items-start gap-3 px-4 py-3 border-b border-slate-100 dark:border-slate-800/60 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors"
+            >
+              <!-- Icona tipo -->
+              <div class="shrink-0 mt-0.5">
+                <CheckCircle2 v-if="n.type === 'success'" class="w-4 h-4 text-emerald-500" />
+                <TriangleAlert v-else-if="n.type === 'error'" class="w-4 h-4 text-red-500" />
+                <TriangleAlert v-else class="w-4 h-4 text-amber-500" />
+              </div>
+
+              <!-- Contenuto -->
+              <div class="flex-1 min-w-0">
+                <p class="text-xs font-medium text-slate-800 dark:text-slate-200 leading-snug">{{ n.message }}</p>
+                <div class="flex items-center gap-1.5 mt-1">
+                  <span :class="[
+                    'text-[9px] font-bold px-1.5 py-0.5 rounded uppercase',
+                    n.status === 'Resolved'      ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' :
+                    n.status === 'Investigating' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400' :
+                                                   'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                  ]">{{ n.status }}</span>
+                  <span class="text-[10px] text-slate-400">{{ timeAgo(n.createdAt) }}</span>
+                </div>
+              </div>
+
+              <!-- Dismiss -->
+              <button @click.stop="notificationStore.dismiss(n._id)" class="shrink-0 p-1 text-slate-300 hover:text-slate-600 dark:hover:text-slate-300 transition-colors rounded">
+                <X class="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layers Dropdown -->
+      <div class="relative order-3 md:order-4 shrink-0">
         <button @click="toggleLayersMenu" class="flex items-center gap-1.5 p-1.5 md:px-5 md:py-2.5 text-xs md:text-sm bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-cyan-500/30 hover:border-cyan-500/60 rounded-lg md:rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50 active:scale-95">
           <Layers class="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
           <span class="hidden md:inline">Layers</span>

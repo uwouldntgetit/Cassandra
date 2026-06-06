@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: cassandra-backend
+    env: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_URL
+        sync: false
+      - key: SUPER_SECRET
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false

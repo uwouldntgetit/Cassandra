@@ -21,7 +21,7 @@ const router = createRouter({
       component: () => import('../views/AdminView.vue'),
       beforeEnter: (_to, _from, next) => {
         const authStore = useAuthStore()
-        if (authStore.isLoggedIn) {
+        if (authStore.isLoggedIn && authStore.user?.role === 'admin') {
           next()
         } else {
           next('/')

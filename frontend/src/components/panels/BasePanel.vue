@@ -77,6 +77,7 @@ const emit = defineEmits(['toggle'])
             <slot name="chart-title" />
           </div>
           <div class="h-20 md:h-32"><slot name="chart" /></div>
+          <slot name="extra" />
         </div>
       </div>
     </template>

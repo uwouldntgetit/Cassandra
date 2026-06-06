@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { 
-  LayoutDashboard, 
-  RadioTower, 
-  Users, 
-  Settings, 
-  BellRing, 
+import {
+  LayoutDashboard,
+  RadioTower,
+  Users,
+  Settings,
+  BellRing,
   LogOut,
   Map as MapIcon,
   Activity,
@@ -15,12 +15,36 @@ import {
   CheckCircle2
 } from 'lucide-vue-next'
 import { useAuthStore } from '../stores/authStore'
+import { API_URL } from '../services/api'
 import BaseButton from '../components/BaseButton.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
 
 const activeTab = ref('dashboard')
+
+const metrics = ref({ activeSensors: 0, totalSensors: 0, onlinePercentage: 0, systemLoad: 0, activeAlerts: 0, apiRequests: '—' })
+const systemEvents = ref<any[]>([])
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const m = Math.floor(diff / 60000)
+  if (m < 1) return 'just now'
+  if (m < 60) return `${m} min ago`
+  const h = Math.floor(m / 60)
+  if (h < 24) return `${h} hour${h > 1 ? 's' : ''} ago`
+  return `${Math.floor(h / 24)} day(s) ago`
+}
+
+onMounted(async () => {
+  const headers = { 'Authorization': `Bearer ${authStore.token}` }
+  const [mRes, eRes] = await Promise.all([
+    fetch(`${API_URL}/api/v1/admin/metrics`, { headers }),
+    fetch(`${API_URL}/api/v1/admin/events`, { headers })
+  ])
+  if (mRes.ok) metrics.value = await mRes.json()
+  if (eRes.ok) systemEvents.value = await eRes.json()
+})
 
 const handleLogout = () => {
   authStore.logout()
@@ -30,15 +54,6 @@ const handleLogout = () => {
 const goToMap = () => {
   router.push('/dashboard')
 }
-
-// Mock data for the table
-const systemEvents = [
-  { id: 1, type: 'error', message: 'Traffic Sensor T-04 disconnected', time: '2 mins ago', status: 'Unresolved' },
-  { id: 2, type: 'warning', message: 'High crowd density detected at Piazza Duomo', time: '15 mins ago', status: 'Investigating' },
-  { id: 3, type: 'success', message: 'Firmware updated on Lighting Sector 4', time: '1 hour ago', status: 'Resolved' },
-  { id: 4, type: 'success', message: 'Daily backup completed successfully', time: '3 hours ago', status: 'Resolved' },
-  { id: 5, type: 'error', message: 'API Rate limit exceeded on Weather Node', time: '5 hours ago', status: 'Unresolved' },
-]
 </script>
 
 <template>
@@ -127,11 +142,11 @@ const systemEvents = [
                 <RadioTower class="w-5 h-5" />
               </div>
               <span class="flex items-center gap-1 text-xs font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-md">
-                98% Online
+                {{ metrics.onlinePercentage }}% Online
               </span>
             </div>
             <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Active Sensors</h3>
-            <p class="text-3xl font-black">2,405</p>
+            <p class="text-3xl font-black">{{ metrics.activeSensors }}</p>
           </div>
 
           <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
@@ -144,7 +159,7 @@ const systemEvents = [
               </span>
             </div>
             <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">System Load</h3>
-            <p class="text-3xl font-black">34%</p>
+            <p class="text-3xl font-black">{{ metrics.systemLoad }}%</p>
           </div>
 
           <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
@@ -157,7 +172,7 @@ const systemEvents = [
               </span>
             </div>
             <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Active Alerts</h3>
-            <p class="text-3xl font-black">2</p>
+            <p class="text-3xl font-black">{{ metrics.activeAlerts }}</p>
           </div>
 
           <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
@@ -170,7 +185,7 @@ const systemEvents = [
               </span>
             </div>
             <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">API Requests</h3>
-            <p class="text-3xl font-black">142k</p>
+            <p class="text-3xl font-black">{{ metrics.apiRequests }}</p>
           </div>
         </div>
 
@@ -201,7 +216,7 @@ const systemEvents = [
                     </div>
                   </td>
                   <td class="px-6 py-4 font-medium text-slate-700 dark:text-slate-300">{{ event.message }}</td>
-                  <td class="px-6 py-4 text-slate-500">{{ event.time }}</td>
+                  <td class="px-6 py-4 text-slate-500">{{ timeAgo(event.time) }}</td>
                   <td class="px-6 py-4 text-right">
                     <span :class="['px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider', 
                       event.status === 'Resolved' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' :

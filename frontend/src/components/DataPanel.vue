@@ -25,7 +25,7 @@ const togglePanel = (panel: PanelType) => {
 }
 
 const hasActiveLayers = computed(() => {
-  return layerStore.activeLayers.weather || layerStore.activeLayers.traffic || 
+  return layerStore.activeLayers.weather || layerStore.activeLayers.traffic ||
          layerStore.activeLayers.lighting || layerStore.activeLayers.crowd
 })
 </script>
@@ -66,13 +66,14 @@ const hasActiveLayers = computed(() => {
         @toggle="togglePanel('lighting')"
       />
       
-      <CrowdPanel 
-        v-if="layerStore.activeLayers.crowd" 
+      <CrowdPanel
+        v-if="layerStore.activeLayers.crowd"
         key="crowd"
         :isExpanded="expandedPanel === 'crowd'"
         :isLoading="layerStore.loadingLayers.crowd"
         @toggle="togglePanel('crowd')"
       />
+
     </TransitionGroup>
   </div>
 </template>
