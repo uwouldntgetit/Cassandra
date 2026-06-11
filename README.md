@@ -22,10 +22,23 @@
 
 - 🗺️ **Mappa Interattiva Avanzata**: Navigazione fluida della città basata su Leaflet.
 - 🔥 **Heatmap ad Alte Prestazioni**: Rendering su Canvas (`leaflet.heat`) per visualizzare grandi moli di dati (Affollamento e Smart Lighting) in tempo reale tramite gradienti neon personalizzati.
-- 🔐 **Pannello di Amministrazione Sicuro**: Sezione privata (dietro login simulato) con grafici analitici (`Chart.js`) e metriche di sistema.
+- 🔐 **Pannello di Amministrazione Sicuro**: Sezione privata riservata agli admin (autenticazione JWT/Google) con grafici analitici (`Chart.js`) e metriche di sistema.
 - 🌗 **Tema Dinamico (Dark/Light Mode)**: Supporto nativo per temi chiari e scuri, con una palette colori accuratamente studiata per non affaticare la vista.
 - 📍 **Ricerca e Preferiti**: Geocodifica live tramite l'API Nominatim di OpenStreetMap e salvataggio delle posizioni preferite dell'utente.
 - 🛡️ **UX Protettiva**: Sistemi di prevenzione sovrapposizione visiva (es. avvisi di conflitto tra layer) con salvataggio delle preferenze utente nel `localStorage`.
+
+---
+
+## 📡 Fonti Dati
+
+| Dato | Fonte |
+|---|---|
+| Meteo e qualità dell'aria | Live da [Open-Meteo](https://open-meteo.com/) |
+| Rete stradale | Live da [Overpass API](https://overpass-api.de/) (OSM), fallback OSRM |
+| Livelli di congestione del traffico | Simulati (pattern orari/settimanali sulla rete stradale reale) |
+| Affollamento e illuminazione | Sintetici (seed nel database) |
+| Previsioni | Modello statistico su storico sintetico + meteo live |
+| Metriche admin (system load, API requests) | Simulate |
 
 ---
 
