@@ -9,7 +9,7 @@ const favoriteSchema = new mongoose.Schema({
 
 const userSchema = new mongoose.Schema({
   name:     { type: String, required: true },
-  email:    { type: String, required: true, unique: true },
+  email:    { type: String, required: true, unique: true, lowercase: true, trim: true },
   password: { type: String, default: '' },   // empty for Google-only accounts
   googleId: { type: String, default: null },  // null for email/password accounts
   role:     { type: String, enum: ['user', 'admin'], default: 'user' },
