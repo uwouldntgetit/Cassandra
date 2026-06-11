@@ -46,8 +46,9 @@ async function fetchLiveWeather() {
   const hourly      = weatherData.hourly
   const currentHour = new Date().getHours()
 
-  // Ultimi 6 campioni orari di temperatura
-  const indices     = Array.from({ length: 6 }, (_, i) => Math.max(0, currentHour - 5 + i))
+  // Ultimi 6 campioni orari di temperatura (meno se la giornata è appena iniziata)
+  const firstHour   = Math.max(0, currentHour - 5)
+  const indices     = Array.from({ length: currentHour - firstHour + 1 }, (_, i) => firstHour + i)
   const trend       = indices.map(h => Math.round(hourly.temperature_2m[h] ?? current.temperature_2m))
   const trendLabels = indices.map(h => `${String(h).padStart(2, '0')}:00`)
 
@@ -98,9 +99,10 @@ router.get('/traffic', async (req, res) => {
     const stats    = trafficStats(segments)
     const hour     = new Date().getHours()
 
-    // Trend orario: pattern realistico per le ultime 6 ore
+    // Trend orario: pattern realistico per le ultime 6 ore (meno a inizio giornata)
     const HOURLY = [5,5,5,5,5,8,15,30,75,90,70,50,45,55,65,70,90,95,80,55,40,30,20,10]
-    const indices    = Array.from({ length: 6 }, (_, i) => Math.max(0, hour - 5 + i))
+    const firstHour  = Math.max(0, hour - 5)
+    const indices    = Array.from({ length: hour - firstHour + 1 }, (_, i) => firstHour + i)
     const trend      = indices.map(h => HOURLY[h] ?? 10)
     const trendLabels = indices.map(h => `${String(h).padStart(2,'0')}:00`)
 

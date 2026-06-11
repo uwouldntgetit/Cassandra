@@ -88,6 +88,9 @@ async function fetchRoads() {
     console.log(`Road network loaded from OSRM: ${roads.length} routes`)
   }
 
+  // Un risultato vuoto non va messo in cache: meglio il fallback su DB del chiamante
+  if (!roads.length) throw new Error('No road data from Overpass or OSRM')
+
   _roadsCache     = roads
   _roadsCacheTime = now
   return roads
