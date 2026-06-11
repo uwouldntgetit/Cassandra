@@ -5,7 +5,7 @@
  * 
  * Modale informativo che mostra i dettagli del progetto, i membri del team e le fonti dei dati.
  */
-import { X, MapPin, Database, Users, Github } from 'lucide-vue-next'
+import { X, MapPin, Database, Github } from 'lucide-vue-next'
 import { onMounted, onUnmounted } from 'vue'
 import BaseButton from './BaseButton.vue'
 
@@ -13,7 +13,7 @@ const props = defineProps<{ isOpen: boolean }>()
 const emit = defineEmits(['close'])
 
 const close = () => emit('close')
-const openGithub = () => window.open('#', '_blank')
+const openGithub = () => window.open('https://github.com/uwouldntgetit/Cassandra', '_blank')
 
 const handleKeydown = (event: KeyboardEvent) => {
   if (event.key === 'Escape' && props.isOpen) {
@@ -76,23 +76,6 @@ onUnmounted(() => {
               <span class="px-2.5 py-1 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 text-xs rounded-lg border border-cyan-200 dark:border-cyan-800">Open Data Trentino</span>
               <span class="px-2.5 py-1 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 text-xs rounded-lg border border-cyan-200 dark:border-cyan-800">Copernicus Satellite</span>
               <span class="px-2.5 py-1 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 text-xs rounded-lg border border-cyan-200 dark:border-cyan-800">OpenStreetMap</span>
-            </div>
-          </div>
-
-          <!-- Team -->
-          <div class="space-y-3">
-            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-              <Users class="w-4 h-4" /> The Team
-            </h3>
-            <div class="grid grid-cols-2 gap-3 text-sm text-slate-700 dark:text-slate-300">
-              <div class="bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
-                <p class="font-semibold text-slate-900 dark:text-white">Tuo Nome</p>
-                <p class="text-xs text-slate-500">Frontend & UI/UX</p>
-              </div>
-              <div class="bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
-                <p class="font-semibold text-slate-900 dark:text-white">Nome Compagno</p>
-                <p class="text-xs text-slate-500">Backend & Data</p>
-              </div>
             </div>
           </div>
 
