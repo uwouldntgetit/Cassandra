@@ -73,9 +73,9 @@ onUnmounted(() => {
               <Database class="w-4 h-4" /> Data Sources
             </h3>
             <div class="flex flex-wrap gap-2">
-              <span class="px-2.5 py-1 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 text-xs rounded-lg border border-cyan-200 dark:border-cyan-800">Open Data Trentino</span>
-              <span class="px-2.5 py-1 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 text-xs rounded-lg border border-cyan-200 dark:border-cyan-800">Copernicus Satellite</span>
-              <span class="px-2.5 py-1 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 text-xs rounded-lg border border-cyan-200 dark:border-cyan-800">OpenStreetMap</span>
+              <span class="px-2.5 py-1 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 text-xs rounded-lg border border-cyan-200 dark:border-cyan-800">Open-Meteo</span>
+              <span class="px-2.5 py-1 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 text-xs rounded-lg border border-cyan-200 dark:border-cyan-800">OpenStreetMap / Overpass</span>
+              <span class="px-2.5 py-1 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 text-xs rounded-lg border border-cyan-200 dark:border-cyan-800">Nominatim</span>
             </div>
           </div>
 
