@@ -1,6 +1,8 @@
 import express from 'express'
 import 'express-async-errors'
 import cors from 'cors'
+import helmet from 'helmet'
+import rateLimit from 'express-rate-limit'
 import swaggerUi from 'swagger-ui-express'
 import { swaggerSpec } from './swagger.js'
 
@@ -13,16 +15,27 @@ import adminRouter         from './app/admin.js'
 import tokenChecker        from './app/tokenChecker.js'
 
 const app = express()
+app.set('trust proxy', 1) // dietro il proxy di Render: l'IP del client arriva via X-Forwarded-For
 
-app.use(cors())
+// CORS_ORIGIN (lista separata da virgole) limita le origini; se assente accetta tutto
+app.use(cors(process.env.CORS_ORIGIN ? { origin: process.env.CORS_ORIGIN.split(',') } : {}))
+app.use(helmet({ contentSecurityPolicy: false })) // CSP disabilitata per Swagger UI
 app.use(express.json())
+
+// Rate limit sulle rotte di autenticazione contro il brute force (disattivato nei test)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 20,
+  skip: () => process.env.NODE_ENV === 'test',
+  message: { success: false, message: 'Too many attempts, try again later.' }
+})
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
 app.get('/', (req, res) => res.redirect('/api-docs'))
 
 // Rotte pubbliche
-app.use('/api/v1/authentications', authRouter)
+app.use('/api/v1/authentications', authLimiter, authRouter)
 app.use('/api/v1/layers',          layersRouter)
 app.use('/api/v1/predictions',     predictionsRouter)
 app.use('/api/v1/notifications',   notificationsRouter)

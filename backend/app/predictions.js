@@ -34,7 +34,7 @@ async function fetchWeatherForecast(days) {
 // GET /api/v1/predictions?days=7
 router.get('/', async (req, res) => {
   try {
-    const days = Math.min(parseInt(req.query.days) || 7, 14)
+    const days = Math.min(Math.max(parseInt(req.query.days) || 7, 1), 14)
 
     const [history, weatherDaily] = await Promise.all([
       CrowdHistory.find({}).sort({ date: -1 }).lean(),

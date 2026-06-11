@@ -27,22 +27,29 @@ function userResponse(user, token) {
   }
 }
 
+// Vero solo se tutti i valori sono stringhe non vuote (blocca operatori Mongo nel body)
+function areStrings(...values) {
+  return values.every(v => typeof v === 'string' && v.length > 0)
+}
+
 // POST /api/v1/authentications — login email/password
+// Risponde 401 con messaggio generico sia per email inesistente che per
+// password errata, per non rivelare quali email sono registrate.
 router.post('', async (req, res) => {
   const { email, password } = req.body
-  if (!email || !password)
+  if (!areStrings(email, password))
     return res.status(400).json({ success: false, message: 'Email and password required.' })
 
   const user = await User.findOne({ email }).exec()
   if (!user)
-    return res.status(401).json({ success: false, message: 'User not found.' })
+    return res.status(401).json({ success: false, message: 'Invalid credentials.' })
 
   if (!user.password)
     return res.status(400).json({ success: false, message: 'This account uses Google Sign-In.' })
 
   const passwordMatch = await bcrypt.compare(password, user.password)
   if (!passwordMatch)
-    return res.status(401).json({ success: false, message: 'Wrong password.' })
+    return res.status(401).json({ success: false, message: 'Invalid credentials.' })
 
   res.json(userResponse(user, signToken(user)))
 })
@@ -81,7 +88,7 @@ router.post('/google', async (req, res) => {
 // POST /api/v1/authentications/register — registrazione email/password
 router.post('/register', async (req, res) => {
   const { name, email, password } = req.body
-  if (!name || !email || !password)
+  if (!areStrings(name, email, password))
     return res.status(400).json({ success: false, message: 'Name, email and password required.' })
   if (password.length < 6)
     return res.status(400).json({ success: false, message: 'Password must be at least 6 characters.' })

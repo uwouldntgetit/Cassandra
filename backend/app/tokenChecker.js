@@ -1,12 +1,9 @@
 import jwt from 'jsonwebtoken'
 
-// Middleware: verifica il JWT da header, query param o body.
+// Middleware: verifica il JWT dall'header Authorization (Bearer).
 // Se valido, aggiunge req.loggedUser con i dati dell'utente.
 const tokenChecker = (req, res, next) => {
-  const token = req.headers['x-access-token'] ||
-                req.headers.authorization?.replace('Bearer ', '') ||
-                req.query.token ||
-                req.body.token
+  const token = req.headers.authorization?.replace('Bearer ', '')
 
   if (!token)
     return res.status(401).json({ success: false, message: 'No token provided.' })

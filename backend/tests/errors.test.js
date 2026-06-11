@@ -38,6 +38,39 @@ describe('Error handling globale', () => {
   })
 })
 
+describe('Autorizzazione admin', () => {
+  test('utente non admin riceve 403 sulle rotte admin', async () => {
+    await request(app)
+      .post('/api/v1/authentications/register')
+      .send({ name: 'Utente', email: 'utente@test.it', password: 'password123' })
+    const login = await request(app)
+      .post('/api/v1/authentications')
+      .send({ email: 'utente@test.it', password: 'password123' })
+
+    const res = await request(app)
+      .get('/api/v1/admin/metrics')
+      .set('Authorization', `Bearer ${login.body.token}`)
+    expect(res.status).toBe(403)
+  })
+
+  test('admin accede alle metriche', async () => {
+    const res = await request(app)
+      .get('/api/v1/admin/metrics')
+      .set('Authorization', `Bearer ${adminToken}`)
+    expect(res.status).toBe(200)
+    expect(res.body.totalUsers).toBeDefined()
+  })
+})
+
+describe('Validazione input login', () => {
+  test('rifiuta operatori Mongo al posto delle credenziali', async () => {
+    const res = await request(app)
+      .post('/api/v1/authentications')
+      .send({ email: { $gt: '' }, password: { $gt: '' } })
+    expect(res.status).toBe(400)
+  })
+})
+
 describe('Normalizzazione email', () => {
   test('registrazione con maiuscole e login in minuscolo', async () => {
     await request(app)
