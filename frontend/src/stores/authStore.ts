@@ -3,8 +3,8 @@ import { apiFetch } from '../services/api'
 
 export interface FavoritePlace {
   _id?: string
-  lat: string
-  lon: string
+  lat: number
+  lon: number
   name: string
   display_name: string
 }
@@ -130,8 +130,8 @@ export const useAuthStore = defineStore('auth', {
       const existing = this.user.favorites.find(f => f.lat === place.lat && f.lon === place.lon)
 
       if (existing) {
-        await apiFetch(`/api/v1/users/me/favorites/${existing._id}`, { method: 'DELETE' }, this.token)
-        this.user.favorites = this.user.favorites.filter(f => f._id !== existing._id)
+        const res = await apiFetch(`/api/v1/users/me/favorites/${existing._id}`, { method: 'DELETE' }, this.token)
+        if (res.ok) this.user.favorites = this.user.favorites.filter(f => f._id !== existing._id)
       } else {
         const res = await apiFetch('/api/v1/users/me/favorites', {
           method: 'POST',
@@ -144,7 +144,7 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    isFavorite(_name: string, lat: string, lon: string): boolean {
+    isFavorite(_name: string, lat: number, lon: number): boolean {
       if (!this.user) return false
       return this.user.favorites.some(f => f.lat === lat && f.lon === lon)
     }

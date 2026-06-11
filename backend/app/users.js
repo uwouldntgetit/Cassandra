@@ -30,8 +30,10 @@ router.get('/me/favorites', async (req, res) => {
 
 // POST /api/v1/users/me/favorites — aggiunge un preferito
 router.post('/me/favorites', async (req, res) => {
-  const { name, display_name, lat, lon } = req.body
-  if (!name || !lat || !lon)
+  const { name, display_name } = req.body
+  const lat = Number(req.body.lat)
+  const lon = Number(req.body.lon)
+  if (!name || !Number.isFinite(lat) || !Number.isFinite(lon))
     return res.status(400).json({ success: false, message: 'name, lat and lon are required.' })
 
   const user = await User.findById(req.loggedUser.id).exec()

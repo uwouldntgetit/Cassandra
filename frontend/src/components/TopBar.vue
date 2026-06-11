@@ -61,8 +61,8 @@ const handleSearch = async () => {
   }
 }
 
-const selectLocation = (lat: string, lon: string, name: string) => {
-  emit('fly-to', parseFloat(lat), parseFloat(lon))
+const selectLocation = (lat: string | number, lon: string | number, name: string) => {
+  emit('fly-to', Number(lat), Number(lon))
   searchQuery.value = name.split(',')[0]
   searchResults.value = []
   noResults.value = false
@@ -145,8 +145,8 @@ const toggleFavoriteResult = (res: any, event: Event) => {
     return
   }
   authStore.toggleFavorite({
-    lat: res.lat,
-    lon: res.lon,
+    lat: parseFloat(res.lat),
+    lon: parseFloat(res.lon),
     name: res.display_name.split(',')[0],
     display_name: res.display_name
   })
@@ -198,7 +198,7 @@ onUnmounted(() => {
                   </div>
                 </div>
                 <button @click.stop="toggleFavoriteResult(res, $event)" class="p-2 -mr-2 text-slate-300 hover:text-amber-400 transition-colors" title="Toggle Favorite">
-                  <Star :class="['w-5 h-5 transition-all', authStore.isFavorite(res.display_name.split(',')[0], res.lat, res.lon) ? 'fill-amber-400 text-amber-400' : '']" />
+                  <Star :class="['w-5 h-5 transition-all', authStore.isFavorite(res.display_name.split(',')[0], parseFloat(res.lat), parseFloat(res.lon)) ? 'fill-amber-400 text-amber-400' : '']" />
                 </button>
               </div>
             </li>

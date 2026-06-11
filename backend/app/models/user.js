@@ -3,8 +3,8 @@ import mongoose from 'mongoose'
 const favoriteSchema = new mongoose.Schema({
   name: { type: String, required: true },
   display_name: { type: String, required: true },
-  lat: { type: String, required: true },
-  lon: { type: String, required: true }
+  lat: { type: Number, required: true },
+  lon: { type: Number, required: true }
 }, { _id: true })
 
 const userSchema = new mongoose.Schema({
