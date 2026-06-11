@@ -25,6 +25,16 @@ function computeInitials(name: string): string {
     : name.substring(0, 2).toUpperCase()
 }
 
+// Legge la scadenza dal payload del JWT; un token illeggibile è considerato scaduto
+function tokenExpired(token: string): boolean {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    return payload.exp * 1000 < Date.now()
+  } catch {
+    return true
+  }
+}
+
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null as User | null,
@@ -36,46 +46,22 @@ export const useAuthStore = defineStore('auth', {
     init() {
       const token = localStorage.getItem('token')
       const raw = localStorage.getItem('user')
-      if (token && raw) {
+      if (!token || !raw) return
+      if (tokenExpired(token)) return this.logout()
+
+      try {
         const stored = JSON.parse(raw)
         this.token = token
         this.user = { ...stored, initials: computeInitials(stored.name), favorites: [] }
         this.isLoggedIn = true
         this.loadFavorites()
+      } catch {
+        this.logout()
       }
     },
 
-    async login(email: string, password: string) {
-      const res = await apiFetch('/api/v1/authentications', {
-        method: 'POST',
-        body: JSON.stringify({ email, password })
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.message || 'Login failed.')
-
-      this.token = data.token
-      this.user = {
-        id: data.id,
-        name: data.name,
-        email: data.email,
-        role: data.role,
-        initials: computeInitials(data.name),
-        favorites: []
-      }
-      this.isLoggedIn = true
-      localStorage.setItem('token', data.token)
-      localStorage.setItem('user', JSON.stringify({ id: data.id, name: data.name, email: data.email, role: data.role }))
-      await this.loadFavorites()
-    },
-
-    async googleLogin(credential: string) {
-      const res = await apiFetch('/api/v1/authentications/google', {
-        method: 'POST',
-        body: JSON.stringify({ credential })
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.message || 'Google login failed.')
-
+    // Salva token e dati utente nello store e in localStorage
+    setSession(data: { token: string; id: string; name: string; email: string; role: string }) {
       this.token = data.token
       this.user = {
         id:       data.id,
@@ -88,6 +74,29 @@ export const useAuthStore = defineStore('auth', {
       this.isLoggedIn = true
       localStorage.setItem('token', data.token)
       localStorage.setItem('user', JSON.stringify({ id: data.id, name: data.name, email: data.email, role: data.role }))
+    },
+
+    async login(email: string, password: string) {
+      const res = await apiFetch('/api/v1/authentications', {
+        method: 'POST',
+        body: JSON.stringify({ email, password })
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message || 'Login failed.')
+
+      this.setSession(data)
+      await this.loadFavorites()
+    },
+
+    async googleLogin(credential: string) {
+      const res = await apiFetch('/api/v1/authentications/google', {
+        method: 'POST',
+        body: JSON.stringify({ credential })
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message || 'Google login failed.')
+
+      this.setSession(data)
       await this.loadFavorites()
     },
 
@@ -113,6 +122,7 @@ export const useAuthStore = defineStore('auth', {
       if (!this.token || !this.user) return
       const res = await apiFetch('/api/v1/users/me/favorites', {}, this.token)
       if (res.ok) this.user.favorites = await res.json()
+      else if (res.status === 401 || res.status === 403) this.logout()
     },
 
     async toggleFavorite(place: FavoritePlace) {
