@@ -51,6 +51,18 @@ function generateCluster(centerLat, centerLon, count, spread = 0.005) {
 }
 
 async function seed() {
+  // Il seed cancella tutte le collezioni del DB puntato da DB_URL:
+  // richiede --force e le password dei due account demo via env
+  if (!process.argv.includes('--force')) {
+    console.error('ATTENZIONE: il seed cancella TUTTI i dati del DB puntato da DB_URL.')
+    console.error('Per procedere: npm run seed -- --force')
+    process.exit(1)
+  }
+  if (!process.env.SEED_ADMIN_PASSWORD || !process.env.SEED_USER_PASSWORD) {
+    console.error('Imposta SEED_ADMIN_PASSWORD e SEED_USER_PASSWORD nel file .env')
+    process.exit(1)
+  }
+
   await mongoose.connect(process.env.DB_URL)
   console.log('Connected to MongoDB Atlas')
 
@@ -65,8 +77,8 @@ async function seed() {
   console.log('Collections cleared')
 
   // --- UTENTI ---
-  const adminPassword = await bcrypt.hash('admin123', 10)
-  const userPassword = await bcrypt.hash('user123', 10)
+  const adminPassword = await bcrypt.hash(process.env.SEED_ADMIN_PASSWORD, 10)
+  const userPassword = await bcrypt.hash(process.env.SEED_USER_PASSWORD, 10)
 
   await User.insertMany([
     { name: 'Admin Cassandra', email: 'admin@cassandra.it', password: adminPassword, role: 'admin' },
@@ -221,8 +233,8 @@ async function seed() {
   console.log(`Crowd history created: ${historyDocs.length} records (${TRENTO_ZONES.length} zone × 45 giorni)`)
 
   console.log('\nSeed completed!')
-  console.log('Admin login: admin@cassandra.it / admin123')
-  console.log('User login:  mario@example.com / user123')
+  console.log('Admin login: admin@cassandra.it (password: SEED_ADMIN_PASSWORD)')
+  console.log('User login:  mario@example.com (password: SEED_USER_PASSWORD)')
   await mongoose.disconnect()
 }
 
