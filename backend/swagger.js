@@ -175,7 +175,7 @@ export const swaggerSpec = {
       get: {
         tags: ['Routing'],
         summary: 'Calcola il percorso stradale tra due punti',
-        description: 'Restituisce distanza, durata e geometria del tragitto in auto tra origine e destinazione, calcolati tramite OSRM.',
+        description: 'Restituisce distanza, durata e geometria del tragitto in auto tra origine e destinazione, calcolati tramite OSRM. Tra i percorsi alternativi viene scelto quello suggerito meno volte, per non sovraffollare sempre le stesse strade.',
         parameters: [
           { name: 'fromLat', in: 'query', required: true, schema: { type: 'number' }, example: 46.0723, description: 'Latitudine di partenza' },
           { name: 'fromLon', in: 'query', required: true, schema: { type: 'number' }, example: 11.1162, description: 'Longitudine di partenza' },
@@ -200,7 +200,8 @@ export const swaggerSpec = {
                         type:        { type: 'string', example: 'LineString' },
                         coordinates: { type: 'array', items: { type: 'array', items: { type: 'number' } } }
                       }
-                    }
+                    },
+                    alternatives: { type: 'integer', description: 'Numero di percorsi tra cui è stato scelto', example: 2 }
                   }
                 }
               }
