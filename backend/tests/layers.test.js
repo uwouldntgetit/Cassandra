@@ -8,9 +8,9 @@ import SystemEvent from '../app/models/systemEvent.js'
 
 let mongod
 
-// Le API esterne (Open-Meteo, Overpass, OSRM) sono mockate via global.fetch.
-// I test di fallback vanno eseguiti prima di quelli "live": le risposte
-// live vengono messe in cache a livello di modulo.
+// External APIs (Open-Meteo, Overpass, OSRM) are mocked via global.fetch.
+// Fallback tests must run before the "live" ones: live responses are
+// cached at module level.
 beforeAll(async () => {
   mongod = await MongoMemoryServer.create()
   await mongoose.connect(mongod.getUri())

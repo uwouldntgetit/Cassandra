@@ -12,6 +12,7 @@ export const swaggerSpec = {
   tags: [
     { name: 'Auth',          description: 'Autenticazione e registrazione' },
     { name: 'Layers',        description: 'Dati layer in tempo reale (pubblici)' },
+    { name: 'Routing',       description: 'Calcolo percorso stradale tra due punti (OSRM)' },
     { name: 'Predictions',   description: 'Previsioni meteo e affollamento' },
     { name: 'Notifications', description: 'Notifiche di sistema pubbliche' },
     { name: 'Users',         description: 'Profilo utente e luoghi preferiti (JWT richiesto)' },
@@ -41,12 +42,16 @@ export const swaggerSpec = {
       },
       FavoritePlace: {
         type: 'object',
+        description: 'Ricerca salvata: località più lo stato della mappa (layer attivi, giorno e fascia oraria)',
         properties: {
           _id:          { type: 'string' },
           name:         { type: 'string', example: 'Piazza Duomo' },
           display_name: { type: 'string', example: 'Piazza Duomo, Trento, Italia' },
-          lat:          { type: 'string', example: '46.0679' },
-          lon:          { type: 'string', example: '11.1211' }
+          lat:          { type: 'number', example: 46.0679 },
+          lon:          { type: 'number', example: 11.1211 },
+          layers:       { type: 'array', items: { type: 'string', enum: ['weather', 'traffic', 'lighting', 'crowd'] }, example: ['weather', 'traffic'] },
+          forecastDay:  { type: 'integer', minimum: 0, maximum: 6, example: 0 },
+          timeSlot:     { type: 'integer', minimum: 0, maximum: 3, example: 0 }
         }
       },
       Error: {
@@ -166,6 +171,47 @@ export const swaggerSpec = {
         responses: { 200: { description: 'Heatmap illuminazione per le 12 zone di Trento' } }
       }
     },
+    '/api/v1/routing': {
+      get: {
+        tags: ['Routing'],
+        summary: 'Calcola il percorso stradale tra due punti',
+        description: 'Restituisce distanza, durata e geometria del tragitto in auto tra origine e destinazione, calcolati tramite OSRM.',
+        parameters: [
+          { name: 'fromLat', in: 'query', required: true, schema: { type: 'number' }, example: 46.0723, description: 'Latitudine di partenza' },
+          { name: 'fromLon', in: 'query', required: true, schema: { type: 'number' }, example: 11.1162, description: 'Longitudine di partenza' },
+          { name: 'toLat',   in: 'query', required: true, schema: { type: 'number' }, example: 46.0660, description: 'Latitudine di destinazione' },
+          { name: 'toLon',   in: 'query', required: true, schema: { type: 'number' }, example: 11.1498, description: 'Longitudine di destinazione' }
+        ],
+        responses: {
+          200: {
+            description: 'Percorso calcolato',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success:  { type: 'boolean', example: true },
+                    distance: { type: 'integer', description: 'Distanza in metri', example: 3200 },
+                    duration: { type: 'integer', description: 'Durata in secondi', example: 540 },
+                    geometry: {
+                      type: 'object',
+                      description: 'GeoJSON LineString, coordinate [lon, lat]',
+                      properties: {
+                        type:        { type: 'string', example: 'LineString' },
+                        coordinates: { type: 'array', items: { type: 'array', items: { type: 'number' } } }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          400: { description: 'Coordinate mancanti o non valide', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } },
+          404: { description: 'Nessun percorso trovato tra i due punti', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } },
+          503: { description: 'Servizio di routing non disponibile', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } }
+        }
+      }
+    },
     '/api/v1/predictions': {
       get: {
         tags: ['Predictions'],
@@ -253,8 +299,11 @@ export const swaggerSpec = {
                 properties: {
                   name:         { type: 'string', example: 'Piazza Duomo' },
                   display_name: { type: 'string', example: 'Piazza Duomo, Trento, Italia' },
-                  lat:          { type: 'string', example: '46.0679' },
-                  lon:          { type: 'string', example: '11.1211' }
+                  lat:          { type: 'number', example: 46.0679 },
+                  lon:          { type: 'number', example: 11.1211 },
+                  layers:       { type: 'array', items: { type: 'string', enum: ['weather', 'traffic', 'lighting', 'crowd'] }, example: ['weather', 'traffic'] },
+                  forecastDay:  { type: 'integer', minimum: 0, maximum: 6, example: 0 },
+                  timeSlot:     { type: 'integer', minimum: 0, maximum: 3, example: 0 }
                 }
               }
             }

@@ -39,7 +39,7 @@ export const TIME_SLOTS = [
   { id: 3, label: 'Night',     icon: '🌙', hour: 23 },
 ]
 
-// Moltiplicatori affollamento per profilo zona × fascia oraria [mattina, mezzogiorno, sera, notte]
+// Crowd multipliers per zone profile × time slot [morning, noon, evening, night]
 export const CROWD_TIME_MULT: Record<string, number[]> = {
   tourist_shopping: [0.45, 1.20, 1.00, 0.10],
   commuter:         [1.80, 0.45, 1.60, 0.05],
@@ -51,7 +51,7 @@ export const CROWD_TIME_MULT: Record<string, number[]> = {
   residential:      [0.70, 0.60, 1.00, 0.95],
 }
 
-// Congestione traffico per tipo strada × fascia oraria [mattina, mezzogiorno, sera, notte]
+// Traffic congestion per road type × time slot [morning, noon, evening, night]
 export const TRAFFIC_TIME_CONG: Record<string, string[]> = {
   trunk:     ['high',   'medium', 'high',   'low'],
   primary:   ['medium', 'low',    'medium', 'low'],
@@ -86,8 +86,8 @@ export const useLayerStore = defineStore('layers', {
     },
     forecastData:        null as DayForecast[] | null,
     loadingForecast:     false,
-    selectedForecastDay: 0,   // 0 = oggi (live), 1-6 = giorni futuri
-    selectedTimeSlot:    0,   // 0-3: mattina/mezzogiorno/sera/notte (solo in forecast mode)
+    selectedForecastDay: 0,   // 0 = today (live), 1-6 = future days
+    selectedTimeSlot:    0,   // 0-3: morning/noon/evening/night (forecast mode only)
   }),
 
   actions: {
@@ -107,21 +107,21 @@ export const useLayerStore = defineStore('layers', {
           this.loadingLayers[layer] = false
         }
 
-        // Auto-refresh ogni 30s finché il layer è attivo
+        // Auto-refresh every 30s while the layer is active
         if (this.activeLayers[layer]) {
           _layerIntervals[layer] = setInterval(async () => {
             if (!this.activeLayers[layer]) return
             try {
               const res = await apiFetch(`/api/v1/layers/${layer}`)
               if (res.ok) this.layerData[layer] = await res.json() as any
-            } catch { /* silent — non interrompere l'esperienza */ }
+            } catch { /* silent — don't disrupt the experience */ }
           }, LAYER_REFRESH_MS)
         }
 
-        // Pre-carica il forecast in background al primo layer attivato
+        // Pre-load the forecast in the background when the first layer is enabled
         if (!this.forecastData && !this.loadingForecast) this.fetchForecast()
       } else {
-        // Ferma il refresh interval
+        // Stop the refresh interval
         if (_layerIntervals[layer]) {
           clearInterval(_layerIntervals[layer])
           delete _layerIntervals[layer]
@@ -142,7 +142,7 @@ export const useLayerStore = defineStore('layers', {
         this.loadingForecast = false
       }
 
-      // Avvia il refresh del forecast ogni 5 minuti (una sola volta)
+      // Start the forecast refresh every 5 minutes (only once)
       if (!_forecastInterval) {
         _forecastInterval = setInterval(async () => {
           try {
@@ -167,6 +167,16 @@ export const useLayerStore = defineStore('layers', {
       for (const key of Object.keys(this.activeLayers) as LayerKey[]) {
         if (state !== this.activeLayers[key]) await this.toggleLayer(key)
       }
+    },
+
+    // Restores the map state of a saved search
+    async applyLayers(layers: string[], forecastDay = 0, timeSlot = 0) {
+      const wanted = new Set(layers)
+      for (const key of Object.keys(this.activeLayers) as LayerKey[]) {
+        if (wanted.has(key) !== this.activeLayers[key]) await this.toggleLayer(key)
+      }
+      this.setSelectedForecastDay(forecastDay)  // resets timeSlot when day === 0...
+      this.setSelectedTimeSlot(timeSlot)         // ...so apply the slot afterwards
     }
   }
 })

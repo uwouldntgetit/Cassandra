@@ -1,9 +1,6 @@
 <script setup lang="ts">
 /**
- * BaseButton.vue
- * A unified button component to enforce consistent styling across the application.
- * 
- * Una componente per il bottone per mantenere uno stile uniforme.
+ * Unified button component for consistent styling across the app.
  */
 import { computed } from 'vue'
 

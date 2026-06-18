@@ -1,9 +1,6 @@
 <script setup lang="ts">
 /**
- * SideMenu.vue
- * Sidebar navigation component containing user session details and global settings toggles.
- * 
- * Componente di navigazione laterale con i dettagli della sessione utente e le impostazioni globali.
+ * Sidebar navigation: user session details and global settings toggles.
  */
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
@@ -86,11 +83,11 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
             <p class="text-[10px] md:text-xs text-slate-500 mb-3 md:mb-4">{{ authStore.user?.email }}</p>
             <button @click="router.push('/admin'); isOpen = false" class="w-full py-2 md:py-2.5 mb-2 flex items-center justify-center gap-1.5 md:gap-2 text-xs md:text-sm font-bold text-cyan-700 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-900/30 hover:bg-cyan-100 dark:hover:bg-cyan-900/50 rounded-lg md:rounded-xl transition-colors">
               <LayoutDashboard class="w-3.5 h-3.5 md:w-4 md:h-4" />
-              Admin Panel
+              Pannello admin
             </button>
             <button @click="authStore.logout(); router.push('/')" class="w-full py-2 md:py-2.5 flex items-center justify-center gap-1.5 md:gap-2 text-xs md:text-sm font-bold text-red-500 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-lg md:rounded-xl transition-colors">
               <LogOut class="w-3.5 h-3.5 md:w-4 md:h-4" />
-              Logout
+              Esci
             </button>
           </div>
 
@@ -98,7 +95,7 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
           <div v-else class="mb-3 md:mb-4 flex justify-center">
             <button @click="handleAction('open-login')" class="w-full max-w-[200px] py-2.5 md:py-3.5 flex items-center justify-center gap-1.5 md:gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white rounded-lg md:rounded-xl shadow-lg shadow-cyan-500/30 transition-all font-bold text-xs md:text-sm">
               <LogIn class="w-4 h-4 md:w-5 md:h-5" />
-              Log in
+              Accedi
             </button>
           </div>
 
@@ -109,19 +106,19 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
           <button @click="handleAction('toggle-theme')" class="flex items-center gap-3 md:gap-4 p-2.5 md:p-3.5 w-full rounded-lg md:rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group">
             <Sun v-if="isDark" class="w-4 h-4 md:w-5 md:h-5 text-amber-500 group-hover:rotate-90 transition-transform duration-300" />
             <Moon v-else class="w-4 h-4 md:w-5 md:h-5 text-indigo-500 group-hover:-rotate-12 transition-transform duration-300" />
-            <span class="font-medium text-xs md:text-sm">{{ isDark ? 'Light Mode' : 'Dark Mode' }}</span>
+            <span class="font-medium text-xs md:text-sm">{{ isDark ? 'Modalità chiara' : 'Modalità scura' }}</span>
           </button>
 
 
           <button @click="handleAction('open-settings')" class="flex items-center gap-3 md:gap-4 p-2.5 md:p-3.5 w-full rounded-lg md:rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group">
             <Settings class="w-4 h-4 md:w-5 md:h-5 text-slate-400 group-hover:rotate-90 transition-transform duration-500" />
-            <span class="font-medium text-xs md:text-sm">Settings</span>
+            <span class="font-medium text-xs md:text-sm">Impostazioni</span>
           </button>
 
 
           <button @click="handleAction('open-about')" class="flex items-center gap-3 md:gap-4 p-2.5 md:p-3.5 w-full rounded-lg md:rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group">
             <Info class="w-4 h-4 md:w-5 md:h-5 text-slate-400 group-hover:scale-125 transition-transform duration-300" />
-            <span class="font-medium text-xs md:text-sm">About us</span>
+            <span class="font-medium text-xs md:text-sm">Chi siamo</span>
           </button>
 
         </div>

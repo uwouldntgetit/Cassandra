@@ -14,6 +14,10 @@ const emit = defineEmits(['toggle'])
 const layerStore = useLayerStore()
 const data = computed(() => layerStore.layerData.lighting)
 
+// Italian labels for the backend's English status enum (Active/Inactive)
+const STATUS_LABELS: Record<string, string> = { Active: 'Attivo', Inactive: 'Inattivo' }
+const statusLabel = computed(() => STATUS_LABELS[data.value?.status ?? 'Active'] ?? data.value?.status)
+
 const chartData = computed(() => ({
   labels: data.value?.trendLabels ?? [],
   datasets: [{ data: data.value?.trendData ?? [], borderColor: '#eab308', backgroundColor: 'rgba(234, 179, 8, 0.15)', fill: true, tension: 0.4 }]
@@ -28,17 +32,17 @@ const getChartOptions = () => ({
 <template>
   <BasePanel :isExpanded="isExpanded" :isLoading="isLoading" borderColorClass="border-yellow-500/20" hoverColorClass="hover:text-yellow-500" @toggle="emit('toggle')">
     <template #header-icon><Lightbulb class="w-3 h-3 md:w-5 md:h-5 text-yellow-500" /></template>
-    <template #header-title>Smart Lighting</template>
+    <template #header-title>Illuminazione</template>
     <template #status-badge>
-      <span class="px-1.5 py-0.5 md:px-2 md:py-0.5 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 text-[8px] md:text-[10px] font-bold rounded-md md:rounded-lg border border-yellow-500/20 uppercase">{{ data?.status ?? 'Active' }}</span>
+      <span class="px-1.5 py-0.5 md:px-2 md:py-0.5 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 text-[8px] md:text-[10px] font-bold rounded-md md:rounded-lg border border-yellow-500/20 uppercase">{{ statusLabel }}</span>
     </template>
     <template #main-value>{{ data?.coverage ?? '—' }}%</template>
-    <template #main-unit>COVERAGE</template>
+    <template #main-unit>COPERTURA</template>
     <template #secondary-metrics>
-      <div class="flex items-center gap-0.5 md:gap-1.5 text-slate-500 dark:text-slate-400"><Zap class="w-2 h-2 md:w-4 md:h-4 text-yellow-500" /> <span class="text-[8px] md:text-xs font-medium truncate">{{ data?.energySaved ?? '—' }} kWh Saved</span></div>
-      <div class="flex items-center gap-0.5 md:gap-1 text-slate-500 dark:text-slate-400"><Moon class="w-2 h-2 md:w-3.5 md:h-3.5" /> <span class="text-[8px] md:text-xs font-medium truncate">Auto-Dim</span></div>
+      <div class="flex items-center gap-0.5 md:gap-1.5 text-slate-500 dark:text-slate-400"><Zap class="w-2 h-2 md:w-4 md:h-4 text-yellow-500" /> <span class="text-[8px] md:text-xs font-medium truncate">{{ data?.energySaved ?? '—' }} kWh risparmiati</span></div>
+      <div class="flex items-center gap-0.5 md:gap-1 text-slate-500 dark:text-slate-400"><Moon class="w-2 h-2 md:w-3.5 md:h-3.5" /> <span class="text-[8px] md:text-xs font-medium truncate">Dimmer automatico</span></div>
     </template>
-    <template #chart-title><Activity class="w-2.5 h-2.5 md:w-3.5 md:h-3.5" /> Power Usage & Dimming</template>
+    <template #chart-title><Activity class="w-2.5 h-2.5 md:w-3.5 md:h-3.5" /> Consumo energia e dimmer</template>
     <template #chart><Line :data="chartData" :options="getChartOptions()" /></template>
   </BasePanel>
 </template>

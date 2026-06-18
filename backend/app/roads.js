@@ -10,8 +10,8 @@ let _roadsCache     = null
 let _roadsCacheTime = 0
 const ROADS_CACHE_MS = 24 * 60 * 60 * 1000
 
-// Tratte principali di Trento: [nome, tipo_strada, [lon1,lat1], [lon2,lat2]]
-// OSRM seguirà la strada reale tra questi due punti
+// Main Trento roads: name, highway type, and [lon, lat] endpoints.
+// OSRM follows the real road between the two points.
 const TRENTO_KEY_ROADS = [
   { name: 'Via Brennero (SS12)',   highway: 'trunk',     from: [11.1165, 46.1020], to: [11.1195, 46.0630] },
   { name: 'Viale Verona',          highway: 'primary',   from: [11.1420, 46.0780], to: [11.1310, 46.0390] },
@@ -88,7 +88,7 @@ async function fetchRoads() {
     console.log(`Road network loaded from OSRM: ${roads.length} routes`)
   }
 
-  // Un risultato vuoto non va messo in cache: meglio il fallback su DB del chiamante
+  // Don't cache an empty result: let the caller fall back to the DB
   if (!roads.length) throw new Error('No road data from Overpass or OSRM')
 
   _roadsCache     = roads
@@ -96,7 +96,7 @@ async function fetchRoads() {
   return roads
 }
 
-// Congestion per tipo di strada e condizione del giorno
+// Congestion by road type and day condition
 function assignCongestion(highway, dayType, isPeak) {
   if (dayType === 'holiday')  return 'low'
   if (dayType === 'weekend')  return highway === 'trunk' ? 'medium' : 'low'

@@ -27,14 +27,14 @@ function userResponse(user, token) {
   }
 }
 
-// Vero solo se tutti i valori sono stringhe non vuote (blocca operatori Mongo nel body)
+// True only if every value is a non-empty string (blocks Mongo operators in the body)
 function areStrings(...values) {
   return values.every(v => typeof v === 'string' && v.length > 0)
 }
 
-// POST /api/v1/authentications — login email/password
-// Risponde 401 con messaggio generico sia per email inesistente che per
-// password errata, per non rivelare quali email sono registrate.
+// POST /api/v1/authentications — email/password login
+// Returns a generic 401 for both unknown email and wrong password,
+// so registered emails can't be enumerated.
 router.post('', async (req, res) => {
   const { email, password } = req.body
   if (!areStrings(email, password))
@@ -70,7 +70,7 @@ router.post('/google', async (req, res) => {
     })
     const { sub: googleId, email, name } = ticket.getPayload()
 
-    // Trova o crea l'utente
+    // Find or create the user
     let user = await User.findOne({ email }).exec()
     if (!user) {
       user = await User.create({ name: name || email.split('@')[0], email, googleId, role: 'user' })
@@ -85,7 +85,7 @@ router.post('/google', async (req, res) => {
   }
 })
 
-// POST /api/v1/authentications/register — registrazione email/password
+// POST /api/v1/authentications/register — email/password registration
 router.post('/register', async (req, res) => {
   const { name, email, password } = req.body
   if (!areStrings(name, email, password))

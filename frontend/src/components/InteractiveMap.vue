@@ -21,6 +21,7 @@ let lightingHeatLayer: any                 = null
 let forecastHeatLayer: any                 = null
 let userMarker:        L.Marker     | null = null
 let userCircle:        L.Circle     | null = null
+let routeLayerGroup:   L.LayerGroup | null = null
 let watchId:           number       | null = null
 
 const lightMapUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
@@ -33,9 +34,43 @@ watch(() => props.isDark, (isDark) => {
 const flyTo = (lat: number, lon: number) => {
   if (mapInstance) mapInstance.flyTo([lat, lon], 15, { animate: true, duration: 2.0 })
 }
-defineExpose({ flyTo })
 
-// --- Geolocalizzazione ---
+// --- Route (RF7) ---
+
+// Colored circular marker for the route endpoints
+const endpointIcon = (color: string) => L.divIcon({
+  html: `<div style="width:16px;height:16px;background:${color};border:3px solid white;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.4)"></div>`,
+  className: '', iconSize: [16, 16], iconAnchor: [8, 8]
+})
+
+// coordinates: GeoJSON LineString [lon, lat] returned by OSRM
+const drawRoute = (
+  coordinates: [number, number][],
+  from: { lat: number; lon: number },
+  to:   { lat: number; lon: number }
+) => {
+  if (!mapInstance) return
+  clearRoute()
+
+  const latlngs = coordinates.map(([lon, lat]) => [lat, lon] as [number, number])
+  routeLayerGroup = L.layerGroup([
+    L.polyline(latlngs, { color: '#ffffff', weight: 9, opacity: 0.9 }),       // casing
+    L.polyline(latlngs, { color: '#06b6d4', weight: 5, opacity: 1 }),          // route line
+    L.marker([from.lat, from.lon], { icon: endpointIcon('#22c55e') }).bindTooltip('Partenza', { direction: 'top', offset: [0, -10] }),
+    L.marker([to.lat, to.lon],     { icon: endpointIcon('#ef4444') }).bindTooltip('Arrivo',   { direction: 'top', offset: [0, -10] })
+  ]).addTo(mapInstance)
+
+  mapInstance.fitBounds(L.latLngBounds(latlngs), { padding: [60, 60] })
+}
+
+const clearRoute = () => {
+  if (routeLayerGroup && mapInstance) mapInstance.removeLayer(routeLayerGroup)
+  routeLayerGroup = null
+}
+
+defineExpose({ flyTo, drawRoute, clearRoute })
+
+// --- Geolocation ---
 
 const toggleGeolocation = () => { isTracking.value ? stopTracking() : startTracking() }
 
@@ -103,7 +138,7 @@ function renderTrafficVisualization() {
 
   const day      = layerStore.selectedForecastDay
   const slot     = layerStore.selectedTimeSlot
-  // Usa forecast quando disponibile (anche per oggi), altrimenti live
+  // Use the forecast when available (even for today), otherwise live data
   const forecast = layerStore.forecastData?.[day]?.traffic
   const segments = forecast?.segments ?? layerStore.layerData.traffic?.segments
   if (!segments) return
@@ -225,7 +260,7 @@ function renderCrowdVisualization() {
   const crowdForecast = layerStore.forecastData?.[day]?.crowd
 
   if (crowdForecast) {
-    // Usa forecast (con moltiplicatori fascia oraria) per qualsiasi giorno, incluso oggi
+    // Use the forecast (with time-slot multipliers) for any day, including today
     const points: [number, number, number][] = []
     crowdForecast.zones.forEach(zone => {
       const mult     = CROWD_TIME_MULT[zone.profile]?.[slot] ?? 1.0
@@ -246,7 +281,7 @@ function renderCrowdVisualization() {
     forecastHeatLayer = (L as any).heatLayer(points, { radius: 22, blur: 18, maxZoom: 15, max: 1.0, gradient }).addTo(mapInstance)
     if (forecastHeatLayer._canvas) forecastHeatLayer._canvas.style.opacity = '0.55'
   } else if (day === 0) {
-    // Fallback live se forecast non ancora caricato
+    // Live fallback if the forecast hasn't loaded yet
     const data = layerStore.layerData.crowd
     if (!data) return
     crowdHeatLayer = (L as any).heatLayer(data.heatmapPoints, {
@@ -274,20 +309,20 @@ watch(() => layerStore.layerData.lighting, (data) => {
   if (lightingHeatLayer._canvas) lightingHeatLayer._canvas.style.opacity = '0.5'
 })
 
-// Cambia giorno → ri-renderizza tutti i layer attivi
+// Day change → re-render all active layers
 watch(() => layerStore.selectedForecastDay, () => {
   if (layerStore.activeLayers.weather) renderWeatherVisualization()
   if (layerStore.activeLayers.traffic) renderTrafficVisualization()
   if (layerStore.activeLayers.crowd)   renderCrowdVisualization()
 })
 
-// Cambio fascia oraria → ri-renderizza sempre (anche su "Oggi")
+// Time-slot change → always re-render (even on "Today")
 watch(() => layerStore.selectedTimeSlot, () => {
   if (layerStore.activeLayers.traffic) renderTrafficVisualization()
   if (layerStore.activeLayers.crowd)   renderCrowdVisualization()
 })
 
-// Forecast caricato → ri-renderizza tutto (il time slot ora funziona anche su "Oggi")
+// Forecast loaded → re-render everything (time slot now works on "Today" too)
 watch(() => layerStore.forecastData, () => {
   if (layerStore.activeLayers.weather) renderWeatherVisualization()
   if (layerStore.activeLayers.traffic) renderTrafficVisualization()
@@ -327,13 +362,13 @@ onUnmounted(() => {
   <div class="relative w-full h-full">
     <div ref="mapContainer" class="absolute inset-0"></div>
 
-    <!-- Selettore data + fascia oraria -->
+    <!-- Date + time-slot selector -->
     <Transition name="fade-up">
       <div
         v-if="hasActiveLayers"
         class="absolute bottom-20 left-1/2 -translate-x-1/2 z-[500] flex flex-col items-center gap-1.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg border border-slate-200/60 dark:border-slate-700/60 rounded-xl px-2 py-1.5 shadow-xl"
       >
-        <!-- Riga 1: giorni -->
+        <!-- Row 1: days -->
         <div class="flex items-center gap-1">
           <button
             @click="layerStore.setSelectedForecastDay(0)"
@@ -343,7 +378,7 @@ onUnmounted(() => {
                 ? 'bg-cyan-500 text-white shadow-sm shadow-cyan-500/40'
                 : 'text-slate-600 dark:text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400'
             ]"
-          >Today</button>
+          >Oggi</button>
 
           <span v-if="layerStore.loadingForecast" class="text-[10px] text-slate-400 px-2">...</span>
 
@@ -368,7 +403,7 @@ onUnmounted(() => {
           </template>
         </div>
 
-        <!-- Riga 2: fasce orarie -->
+        <!-- Row 2: time slots -->
         <Transition name="fade-up">
           <div
             v-if="layerStore.forecastData"
@@ -393,7 +428,7 @@ onUnmounted(() => {
       </div>
     </Transition>
 
-    <!-- Pulsante geolocalizzazione -->
+    <!-- Geolocation button -->
     <button
       @click="toggleGeolocation"
       :title="isTracking ? 'Disattiva posizione' : 'Mostra la mia posizione'"

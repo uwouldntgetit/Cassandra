@@ -18,7 +18,7 @@ const forecastDay = computed(() => layerStore.forecastData?.[layerStore.selected
 const slot        = computed(() => layerStore.selectedTimeSlot)
 const slotLabel   = computed(() => isForecast.value ? TIME_SLOTS[slot.value]?.label : null)
 
-// Statistiche aggiustate per fascia oraria sui segmenti reali
+// Stats adjusted by time slot over the real segments
 const timeSlotStats = computed(() => {
   if (!isForecast.value || !forecastDay.value?.segments?.features) return null
   const features = forecastDay.value.segments.features
@@ -39,8 +39,12 @@ const displayDelay = computed(() => timeSlotStats.value?.delay ?? forecastDay.va
 const displaySpeed = computed(() => timeSlotStats.value?.avgSpeed ?? forecastDay.value?.avgSpeed ?? liveData.value?.avgSpeed)
 
 const activeCongestion = computed(() => timeSlotStats.value?.congestionLevel ?? forecastDay.value?.congestionLevel ?? '')
-const congestionLabel  = computed(() => activeCongestion.value === 'high' ? 'High' : activeCongestion.value === 'moderate' ? 'Moderate' : 'Low')
+const congestionLabel  = computed(() => activeCongestion.value === 'high' ? 'Alta' : activeCongestion.value === 'moderate' ? 'Moderata' : 'Bassa')
 const congestionColor  = computed(() => activeCongestion.value === 'high' ? 'text-red-500' : activeCongestion.value === 'moderate' ? 'text-amber-500' : 'text-emerald-500')
+
+// Italian labels for the backend's English status enum (Heavy/Moderate/Light)
+const STATUS_LABELS: Record<string, string> = { Heavy: 'Intenso', Moderate: 'Moderato', Light: 'Scorrevole' }
+const statusLabel = computed(() => STATUS_LABELS[liveData.value?.status ?? 'Moderate'] ?? liveData.value?.status)
 
 const chartData = computed(() => {
   if (isForecast.value && layerStore.forecastData) {
@@ -76,13 +80,13 @@ const getChartOptions = () => ({
 <template>
   <BasePanel :isExpanded="isExpanded" :isLoading="isLoading" borderColorClass="border-orange-500/20" hoverColorClass="hover:text-orange-500" @toggle="emit('toggle')">
     <template #header-icon><Car class="w-3 h-3 md:w-5 md:h-5 text-orange-500" /></template>
-    <template #header-title>Traffic Flow</template>
+    <template #header-title>Traffico</template>
     <template #status-badge>
-      <span v-if="isForecast" class="px-1.5 py-0.5 md:px-2 md:py-0.5 bg-orange-500/10 text-orange-600 dark:text-orange-400 text-[8px] md:text-[10px] font-bold rounded-md md:rounded-lg border border-orange-500/20 uppercase">{{ slotLabel ?? 'Forecast' }}</span>
-      <span v-else class="px-1.5 py-0.5 md:px-2 md:py-0.5 bg-orange-500/10 text-orange-500 text-[8px] md:text-[10px] font-bold rounded-md md:rounded-lg border border-orange-500/20 uppercase">{{ liveData?.status ?? 'Moderate' }}</span>
+      <span v-if="isForecast" class="px-1.5 py-0.5 md:px-2 md:py-0.5 bg-orange-500/10 text-orange-600 dark:text-orange-400 text-[8px] md:text-[10px] font-bold rounded-md md:rounded-lg border border-orange-500/20 uppercase">{{ slotLabel ?? 'Previsione' }}</span>
+      <span v-else class="px-1.5 py-0.5 md:px-2 md:py-0.5 bg-orange-500/10 text-orange-500 text-[8px] md:text-[10px] font-bold rounded-md md:rounded-lg border border-orange-500/20 uppercase">{{ statusLabel }}</span>
     </template>
     <template #main-value>{{ displayDelay }}</template>
-    <template #main-unit>MIN DELAY</template>
+    <template #main-unit>RITARDO (MIN)</template>
     <template #secondary-metrics>
       <div class="flex items-center gap-0.5 md:gap-1.5 text-slate-500 dark:text-slate-400">
         <Gauge class="w-2 h-2 md:w-4 md:h-4 text-cyan-500" />
@@ -99,7 +103,7 @@ const getChartOptions = () => ({
     </template>
     <template #chart-title>
       <Activity class="w-2.5 h-2.5 md:w-3.5 md:h-3.5" />
-      {{ isForecast ? 'Predicted Delay 7 Days (min)' : 'Congestion Trend' }}
+      {{ isForecast ? 'Ritardo previsto 7 giorni (min)' : 'Andamento traffico' }}
     </template>
     <template #chart>
       <Bar v-if="isForecast" :data="chartData" :options="getChartOptions()" />

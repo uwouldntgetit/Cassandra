@@ -23,6 +23,10 @@ const statusColor = computed(() => {
     : 'bg-red-500/10 text-red-500 border-red-500/20'
 })
 
+// Italian labels for the backend's English status enum (Good/Moderate/Poor)
+const STATUS_LABELS: Record<string, string> = { Good: 'Buono', Moderate: 'Moderato', Poor: 'Scarso' }
+const statusLabel = computed(() => STATUS_LABELS[liveData.value?.status ?? 'Good'] ?? liveData.value?.status)
+
 const chartData = computed(() => {
   if (isForecast.value && layerStore.forecastData) {
     return {
@@ -51,17 +55,17 @@ const getChartOptions = () => ({
 <template>
   <BasePanel :isExpanded="isExpanded" :isLoading="isLoading" borderColorClass="border-sky-500/20" hoverColorClass="hover:text-sky-500" @toggle="emit('toggle')">
     <template #header-icon><Cloud class="w-3 h-3 md:w-5 md:h-5 text-sky-500" /></template>
-    <template #header-title>Weather</template>
+    <template #header-title>Meteo</template>
     <template #status-badge>
-      <span v-if="isForecast" class="px-1.5 py-0.5 md:px-2 md:py-0.5 bg-orange-500/10 text-orange-600 dark:text-orange-400 text-[8px] md:text-[10px] font-bold rounded-md md:rounded-lg border border-orange-500/20 uppercase">Forecast</span>
-      <span v-else :class="['px-1.5 py-0.5 md:px-2 md:py-0.5 text-[8px] md:text-[10px] font-bold rounded-md md:rounded-lg border uppercase', statusColor]">{{ liveData?.status ?? 'Good' }}</span>
+      <span v-if="isForecast" class="px-1.5 py-0.5 md:px-2 md:py-0.5 bg-orange-500/10 text-orange-600 dark:text-orange-400 text-[8px] md:text-[10px] font-bold rounded-md md:rounded-lg border border-orange-500/20 uppercase">Previsione</span>
+      <span v-else :class="['px-1.5 py-0.5 md:px-2 md:py-0.5 text-[8px] md:text-[10px] font-bold rounded-md md:rounded-lg border uppercase', statusColor]">{{ statusLabel }}</span>
     </template>
     <template #main-value>{{ isForecast ? `↑${forecastDay?.tempMax ?? '—'}°` : `${liveData?.temperature ?? '—'}°` }}</template>
-    <template #main-unit>{{ isForecast ? 'MAX TEMP' : 'TEMP °C' }}</template>
+    <template #main-unit>{{ isForecast ? 'TEMP MAX' : 'TEMP °C' }}</template>
     <template #secondary-metrics>
       <div v-if="isForecast" class="flex items-center gap-0.5 md:gap-1.5 text-slate-500 dark:text-slate-400">
         <Droplets class="w-2 h-2 md:w-4 md:h-4 text-sky-500" />
-        <span class="text-[8px] md:text-xs font-medium truncate">{{ forecastDay?.precipProbability ?? '—' }}% rain</span>
+        <span class="text-[8px] md:text-xs font-medium truncate">{{ forecastDay?.precipProbability ?? '—' }}% pioggia</span>
       </div>
       <template v-else>
         <div class="flex items-center gap-0.5 md:gap-1 text-slate-500 dark:text-slate-400"><Thermometer class="w-2 h-2 md:w-3.5 md:h-3.5" /><span class="text-[8px] md:text-xs font-medium truncate">{{ liveData?.aqi ?? '—' }} AQI</span></div>
@@ -74,7 +78,7 @@ const getChartOptions = () => ({
     </template>
     <template #chart-title>
       <Activity class="w-2.5 h-2.5 md:w-3.5 md:h-3.5" />
-      {{ isForecast ? 'Max Temp 7 Days (°C)' : 'AQI Trend' }}
+      {{ isForecast ? 'Temp massima 7 giorni (°C)' : 'Andamento AQI' }}
     </template>
     <template #chart><Line :data="chartData" :options="getChartOptions()" /></template>
   </BasePanel>

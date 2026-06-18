@@ -29,11 +29,11 @@ const systemEvents = ref<any[]>([])
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime()
   const m = Math.floor(diff / 60000)
-  if (m < 1) return 'just now'
-  if (m < 60) return `${m} min ago`
+  if (m < 1) return 'proprio ora'
+  if (m < 60) return `${m} min fa`
   const h = Math.floor(m / 60)
-  if (h < 24) return `${h} hour${h > 1 ? 's' : ''} ago`
-  return `${Math.floor(h / 24)} day(s) ago`
+  if (h < 24) return `${h} ${h > 1 ? 'ore' : 'ora'} fa`
+  return `${Math.floor(h / 24)} giorni fa`
 }
 
 onMounted(async () => {
@@ -70,23 +70,23 @@ const goToMap = () => {
       
       <div class="flex-1 px-4 space-y-2 mt-4 overflow-y-auto">
         <button @click="activeTab = 'dashboard'" :class="['w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors', activeTab === 'dashboard' ? 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50']">
-          <LayoutDashboard class="w-5 h-5" /> Overview
+          <LayoutDashboard class="w-5 h-5" /> Panoramica
         </button>
         <button @click="activeTab = 'sensors'" :class="['w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors', activeTab === 'sensors' ? 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50']">
-          <RadioTower class="w-5 h-5" /> Sensors
+          <RadioTower class="w-5 h-5" /> Sensori
         </button>
         <button @click="activeTab = 'alerts'" :class="['w-full flex items-center justify-between px-4 py-3 rounded-xl font-medium transition-colors', activeTab === 'alerts' ? 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50']">
-          <div class="flex items-center gap-3"><BellRing class="w-5 h-5" /> Alerts</div>
+          <div class="flex items-center gap-3"><BellRing class="w-5 h-5" /> Avvisi</div>
           <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">2</span>
         </button>
         <button @click="activeTab = 'users'" :class="['w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors', activeTab === 'users' ? 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50']">
-          <Users class="w-5 h-5" /> Users
+          <Users class="w-5 h-5" /> Utenti
         </button>
       </div>
 
       <div class="p-4 border-t border-slate-200 dark:border-slate-800 space-y-2">
         <button @click="activeTab = 'settings'" :class="['w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors', activeTab === 'settings' ? 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50']">
-          <Settings class="w-5 h-5" /> Settings
+          <Settings class="w-5 h-5" /> Impostazioni
         </button>
       </div>
     </aside>
@@ -95,7 +95,7 @@ const goToMap = () => {
     <main class="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
       <!-- Header -->
       <header class="h-20 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 shrink-0">
-        <h1 class="text-2xl font-bold hidden md:block">System Dashboard</h1>
+        <h1 class="text-2xl font-bold hidden md:block">Dashboard di sistema</h1>
         
         <!-- Mobile Menu Toggle (simplified for demo) -->
         <div class="md:hidden flex items-center gap-2">
@@ -105,15 +105,15 @@ const goToMap = () => {
 
         <div class="flex items-center gap-4">
           <BaseButton variant="secondary" class="px-4 py-2 text-sm rounded-lg" @click="goToMap">
-            <MapIcon class="w-4 h-4" /> Live Map
+            <MapIcon class="w-4 h-4" /> Mappa live
           </BaseButton>
           
           <div class="h-8 w-px bg-slate-200 dark:bg-slate-700 mx-2"></div>
           
           <div class="flex items-center gap-3">
             <div class="text-right hidden sm:block">
-              <p class="text-sm font-bold leading-none">{{ authStore.user?.name || 'Operator' }}</p>
-              <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1 uppercase tracking-wider">System Admin</p>
+              <p class="text-sm font-bold leading-none">{{ authStore.user?.name || 'Operatore' }}</p>
+              <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1 uppercase tracking-wider">Amministratore</p>
             </div>
             <div class="w-10 h-10 rounded-full bg-cyan-100 dark:bg-cyan-900/50 text-cyan-600 dark:text-cyan-400 flex items-center justify-center font-bold">
               {{ authStore.user?.initials || 'OP' }}
@@ -130,8 +130,8 @@ const goToMap = () => {
         
         <!-- Welcome Message -->
         <div class="mb-8">
-          <h2 class="text-3xl font-black mb-1">Welcome back, {{ authStore.user?.name?.split(' ')[0] || 'Admin' }}! 👋</h2>
-          <p class="text-slate-500 dark:text-slate-400">Here is what's happening in Trento Smart City today.</p>
+          <h2 class="text-3xl font-black mb-1">Bentornato, {{ authStore.user?.name?.split(' ')[0] || 'Admin' }}! 👋</h2>
+          <p class="text-slate-500 dark:text-slate-400">Ecco cosa succede oggi su Trento Smart City.</p>
         </div>
 
         <!-- Metrics Cards -->
@@ -145,7 +145,7 @@ const goToMap = () => {
                 {{ metrics.onlinePercentage }}% Online
               </span>
             </div>
-            <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Active Sensors</h3>
+            <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Sensori attivi</h3>
             <p class="text-3xl font-black">{{ metrics.activeSensors }}</p>
           </div>
 
@@ -155,10 +155,10 @@ const goToMap = () => {
                 <Server class="w-5 h-5" />
               </div>
               <span class="flex items-center gap-1 text-xs font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-md">
-                Healthy
+                Regolare
               </span>
             </div>
-            <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">System Load</h3>
+            <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Carico di sistema</h3>
             <p class="text-3xl font-black">{{ metrics.systemLoad }}%</p>
           </div>
 
@@ -168,10 +168,10 @@ const goToMap = () => {
                 <AlertTriangle class="w-5 h-5" />
               </div>
               <span class="flex items-center gap-1 text-xs font-bold text-red-500 bg-red-50 dark:bg-red-500/10 px-2 py-1 rounded-md">
-                Needs Attention
+                Richiede attenzione
               </span>
             </div>
-            <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Active Alerts</h3>
+            <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Avvisi attivi</h3>
             <p class="text-3xl font-black">{{ metrics.activeAlerts }}</p>
           </div>
 
@@ -181,10 +181,10 @@ const goToMap = () => {
                 <Activity class="w-5 h-5" />
               </div>
               <span class="flex items-center gap-1 text-xs font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-md">
-                +12% vs ytd
+                +12% su base annua
               </span>
             </div>
-            <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">API Requests</h3>
+            <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Richieste API</h3>
             <p class="text-3xl font-black">{{ metrics.apiRequests }}</p>
           </div>
         </div>
@@ -192,17 +192,17 @@ const goToMap = () => {
         <!-- Data Table -->
         <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
           <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-            <h3 class="font-bold text-lg">Recent System Events</h3>
-            <button class="text-sm text-cyan-600 dark:text-cyan-400 font-bold hover:underline">View All</button>
+            <h3 class="font-bold text-lg">Eventi di sistema recenti</h3>
+            <button class="text-sm text-cyan-600 dark:text-cyan-400 font-bold hover:underline">Vedi tutti</button>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full text-left text-sm">
               <thead class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 uppercase text-xs font-bold">
                 <tr>
-                  <th class="px-6 py-4">Event Type</th>
-                  <th class="px-6 py-4">Message</th>
-                  <th class="px-6 py-4">Time</th>
-                  <th class="px-6 py-4 text-right">Status</th>
+                  <th class="px-6 py-4">Tipo evento</th>
+                  <th class="px-6 py-4">Messaggio</th>
+                  <th class="px-6 py-4">Ora</th>
+                  <th class="px-6 py-4 text-right">Stato</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100 dark:divide-slate-800/50">

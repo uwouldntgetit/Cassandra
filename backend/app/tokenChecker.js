@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken'
 
-// Middleware: verifica il JWT dall'header Authorization (Bearer).
-// Se valido, aggiunge req.loggedUser con i dati dell'utente.
+// Middleware: verifies the JWT from the Authorization (Bearer) header.
+// On success, attaches the decoded user to req.loggedUser.
 const tokenChecker = (req, res, next) => {
   const token = req.headers.authorization?.replace('Bearer ', '')
 

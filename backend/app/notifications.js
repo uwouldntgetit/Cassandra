@@ -3,7 +3,7 @@ import SystemEvent from './models/systemEvent.js'
 
 const router = express.Router()
 
-// GET /api/v1/notifications - eventi di sistema recenti (pubblico)
+// GET /api/v1/notifications — recent public system events
 router.get('/', async (req, res) => {
   try {
     const events = await SystemEvent.find({ public: true })

@@ -8,8 +8,8 @@ import { TRENTO_ZONES } from '../app/zones.js'
 
 let mongod
 
-// Con fetch sempre fallita le previsioni usano i fallback sintetici:
-// il modello deve comunque produrre un forecast completo.
+// With fetch always failing, predictions use the synthetic fallbacks:
+// the model must still produce a complete forecast.
 beforeAll(async () => {
   mongod = await MongoMemoryServer.create()
   await mongoose.connect(mongod.getUri())
@@ -53,8 +53,8 @@ describe('GET /api/v1/predictions', () => {
 
     const res = await request(app).get('/api/v1/predictions?days=1')
     expect(res.status).toBe(200)
-    // Senza storico la base sarebbe 2800; con storico a 4000 e moltiplicatori ≥ 1.0
-    // la previsione non può scendere sotto 4000
+    // Without history the base would be 2800; with history at 4000 and multipliers ≥ 1.0
+    // the prediction can't drop below 4000
     const predicted = res.body[0].crowd.zones.find(z => z.id === zone.id)
     expect(predicted.predictedDensity).toBeGreaterThanOrEqual(4000)
   })

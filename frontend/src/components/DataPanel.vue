@@ -1,11 +1,7 @@
 <script setup lang="ts">
 /**
- * DataPanel.vue
- * Coordinator component for displaying active data panels.
- * Renders individual layer panels via a TransitionGroup based on the layerStore state.
- * 
- * Componente coordinatore per la visualizzazione dei pannelli dati attivi.
- * Renderizza i singoli pannelli dei layer tramite un TransitionGroup in base allo stato del layerStore.
+ * Coordinator for the active data panels. Renders each layer panel via a
+ * TransitionGroup based on the layerStore state.
  */
 import { ref, computed } from 'vue'
 import { useLayerStore } from '../stores/layerStore'

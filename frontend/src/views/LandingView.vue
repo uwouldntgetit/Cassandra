@@ -22,7 +22,7 @@ const goToDashboard = () => {
     <!-- Main Content -->
     <div class="z-10 flex flex-col items-center text-center max-w-3xl px-6">
       <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-sm font-medium text-cyan-400 mb-8 backdrop-blur-md">
-        <Activity class="w-4 h-4" /> v2.0 - Smart City OS
+        <Activity class="w-4 h-4" /> v2.0 - Smart City OS per Trento
       </div>
       
       <h1 class="text-5xl md:text-7xl font-black mb-6 tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-slate-400">
@@ -30,24 +30,24 @@ const goToDashboard = () => {
       </h1>
       
       <p class="text-lg md:text-xl text-slate-400 mb-12 max-w-2xl leading-relaxed">
-        The ultimate real-time dashboard for the City of Trento. Monitor traffic, crowd density, smart lighting, and air quality from a single, unified interface.
+        La dashboard in tempo reale per il Comune di Trento. Monitora traffico, affluenza, illuminazione smart e qualità dell'aria da un'unica interfaccia.
       </p>
 
       <div class="flex flex-col sm:flex-row items-center gap-4">
         <BaseButton variant="primary" class="px-8 py-4 rounded-2xl text-lg" @click="goToDashboard">
-          Enter Dashboard <ArrowRight class="w-5 h-5" />
+          Vai alla Dashboard <ArrowRight class="w-5 h-5" />
         </BaseButton>
         <BaseButton variant="secondary" class="px-8 py-4 rounded-2xl text-lg" @click="emit('open-login')">
-          <User class="w-5 h-5" /> Operator Login
+          <User class="w-5 h-5" /> Accesso operatori
         </BaseButton>
       </div>
     </div>
 
     <!-- Features -->
     <div class="absolute bottom-12 left-0 w-full flex justify-center gap-8 px-6 hidden md:flex opacity-60">
-      <div class="flex items-center gap-2 text-sm text-slate-300 font-medium"><Activity class="w-4 h-4 text-cyan-400" /> Real-time Analytics</div>
-      <div class="flex items-center gap-2 text-sm text-slate-300 font-medium"><Shield class="w-4 h-4 text-purple-400" /> Secure Architecture</div>
-      <div class="flex items-center gap-2 text-sm text-slate-300 font-medium"><Zap class="w-4 h-4 text-yellow-400" /> Lightning Fast UI</div>
+      <div class="flex items-center gap-2 text-sm text-slate-300 font-medium"><Activity class="w-4 h-4 text-cyan-400" /> Analisi in tempo reale</div>
+      <div class="flex items-center gap-2 text-sm text-slate-300 font-medium"><Shield class="w-4 h-4 text-purple-400" /> Architettura sicura</div>
+      <div class="flex items-center gap-2 text-sm text-slate-300 font-medium"><Zap class="w-4 h-4 text-yellow-400" /> Interfaccia fulminea</div>
     </div>
   </div>
 </template>

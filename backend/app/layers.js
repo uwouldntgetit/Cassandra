@@ -4,7 +4,7 @@ import { getLiveTrafficGeoJSON, trafficStats } from './roads.js'
 
 const router = Router()
 
-// --- Cache in-memory per il meteo (TTL 15 minuti) ---
+// --- In-memory weather cache (15-minute TTL) ---
 let _weatherCache     = null
 let _weatherCacheTime = 0
 const WEATHER_CACHE_MS = 15 * 60 * 1000
@@ -46,7 +46,7 @@ async function fetchLiveWeather() {
   const hourly      = weatherData.hourly
   const currentHour = new Date().getHours()
 
-  // Ultimi 6 campioni orari di temperatura (meno se la giornata è appena iniziata)
+  // Last 6 hourly temperature samples (fewer early in the day)
   const firstHour   = Math.max(0, currentHour - 5)
   const indices     = Array.from({ length: currentHour - firstHour + 1 }, (_, i) => firstHour + i)
   const trend       = indices.map(h => Math.round(hourly.temperature_2m[h] ?? current.temperature_2m))
@@ -56,7 +56,7 @@ async function fetchLiveWeather() {
   const status   = aqi < 50 ? 'Good' : aqi < 100 ? 'Moderate' : 'Poor'
   const type     = wmoToType(current.weather_code)
   const temp     = Math.round(current.temperature_2m)
-  const hillyType = type === 'sun' ? 'cloud' : type   // collina più umida: sole→nuvola
+  const hillyType = type === 'sun' ? 'cloud' : type   // hills are damper: sun→cloud
 
   _weatherCache = {
     aqi,
@@ -67,11 +67,11 @@ async function fetchLiveWeather() {
     trend,
     trendLabels,
     markers: [
-      { lat: 46.0673, lon: 11.1212, type,      temp: `${temp}°`     },  // Centro
-      { lat: 46.0950, lon: 11.1200, type,      temp: `${temp + 1}°` },  // Gardolo/Nord (valle, +1°)
-      { lat: 46.0450, lon: 11.1250, type,      temp: `${temp}°`     },  // Ravina/Sud
-      { lat: 46.0580, lon: 11.1480, type: hillyType, temp: `${temp - 2}°` },  // Povo/Collina (quota, -2°)
-      { lat: 46.0720, lon: 11.1050, type,      temp: `${temp - 1}°` },  // Oltrefersina/Ovest
+      { lat: 46.0673, lon: 11.1212, type,      temp: `${temp}°`     },  // city center
+      { lat: 46.0950, lon: 11.1200, type,      temp: `${temp + 1}°` },  // Gardolo/north (valley, +1°)
+      { lat: 46.0450, lon: 11.1250, type,      temp: `${temp}°`     },  // Ravina/south
+      { lat: 46.0580, lon: 11.1480, type: hillyType, temp: `${temp - 2}°` },  // Povo/hills (altitude, -2°)
+      { lat: 46.0720, lon: 11.1050, type,      temp: `${temp - 1}°` },  // Oltrefersina/west
     ]
   }
   _weatherCacheTime = now
@@ -84,7 +84,7 @@ router.get('/weather', async (req, res) => {
     const data = await fetchLiveWeather()
     res.json(data)
   } catch (err) {
-    // Open-Meteo non raggiungibile → fallback al seed nel DB
+    // Open-Meteo unreachable → fall back to the DB seed
     console.warn('Open-Meteo unavailable, falling back to DB:', err.message)
     const reading = await Reading.findOne({ type: 'weather' }).exec()
     if (!reading) return res.status(404).json({ success: false, message: 'No weather data available.' })
@@ -99,7 +99,7 @@ router.get('/traffic', async (req, res) => {
     const stats    = trafficStats(segments)
     const hour     = new Date().getHours()
 
-    // Trend orario: pattern realistico per le ultime 6 ore (meno a inizio giornata)
+    // Hourly trend: realistic pattern for the last 6 hours (fewer early in the day)
     const HOURLY = [5,5,5,5,5,8,15,30,75,90,70,50,45,55,65,70,90,95,80,55,40,30,20,10]
     const firstHour  = Math.max(0, hour - 5)
     const indices    = Array.from({ length: hour - firstHour + 1 }, (_, i) => firstHour + i)

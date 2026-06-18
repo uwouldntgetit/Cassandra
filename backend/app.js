@@ -9,20 +9,21 @@ import { swaggerSpec } from './swagger.js'
 import authRouter          from './app/authentication.js'
 import usersRouter         from './app/users.js'
 import layersRouter        from './app/layers.js'
+import routingRouter       from './app/routing.js'
 import predictionsRouter   from './app/predictions.js'
 import notificationsRouter from './app/notifications.js'
 import adminRouter         from './app/admin.js'
 import tokenChecker        from './app/tokenChecker.js'
 
 const app = express()
-app.set('trust proxy', 1) // dietro il proxy di Render: l'IP del client arriva via X-Forwarded-For
+app.set('trust proxy', 1) // behind Render's proxy: client IP arrives via X-Forwarded-For
 
-// CORS_ORIGIN (lista separata da virgole) limita le origini; se assente accetta tutto
+// CORS_ORIGIN (comma-separated list) restricts origins; if unset, all are allowed
 app.use(cors(process.env.CORS_ORIGIN ? { origin: process.env.CORS_ORIGIN.split(',') } : {}))
-app.use(helmet({ contentSecurityPolicy: false })) // CSP disabilitata per Swagger UI
+app.use(helmet({ contentSecurityPolicy: false })) // CSP disabled for Swagger UI
 app.use(express.json())
 
-// Rate limit sulle rotte di autenticazione contro il brute force (disattivato nei test)
+// Rate limit on auth routes to slow brute force (disabled in tests)
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 20,
@@ -34,13 +35,14 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
 app.get('/', (req, res) => res.redirect('/api-docs'))
 
-// Rotte pubbliche
+// Public routes
 app.use('/api/v1/authentications', authLimiter, authRouter)
 app.use('/api/v1/layers',          layersRouter)
+app.use('/api/v1/routing',         routingRouter)
 app.use('/api/v1/predictions',     predictionsRouter)
 app.use('/api/v1/notifications',   notificationsRouter)
 
-// Rotte protette (JWT richiesto)
+// Protected routes (JWT required)
 app.use('/api/v1/users', tokenChecker, usersRouter)
 app.use('/api/v1/admin', tokenChecker, adminRouter)
 
@@ -48,7 +50,7 @@ app.use((req, res) => {
   res.status(404).json({ success: false, message: 'Route not found.' })
 })
 
-// Error handler globale (riceve anche gli errori async via express-async-errors)
+// Global error handler (also catches async errors via express-async-errors)
 app.use((err, req, res, next) => {
   if (err.name === 'CastError')
     return res.status(400).json({ success: false, message: 'Invalid id format.' })

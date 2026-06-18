@@ -1,14 +1,10 @@
 <script setup lang="ts">
 /**
- * TopBar.vue
- * Top navigation bar providing location search and map layer toggles.
- * Interfaces with the Nominatim API for geocoding search results.
- * 
- * Barra di navigazione superiore con ricerca località e toggle per i layer della mappa.
- * Si interfaccia con l'API Nominatim per i risultati di geocodifica della ricerca.
+ * Top navigation bar: location search, saved searches, notifications and
+ * map layer toggles. Uses the Nominatim API for geocoding search results.
  */
 import { ref, onMounted, onUnmounted } from 'vue'
-import { Search, Layers, Loader2, MapPin, AlertCircle, Star, Eye, EyeOff, Bell, BellRing, X, CheckCircle2, TriangleAlert } from 'lucide-vue-next'
+import { Search, Layers, Loader2, MapPin, AlertCircle, Star, Eye, EyeOff, Bell, BellRing, X, CheckCircle2, TriangleAlert, Navigation } from 'lucide-vue-next'
 import { useLayerStore } from '../stores/layerStore'
 import { useAuthStore } from '../stores/authStore'
 import { useNotificationStore } from '../stores/notificationStore'
@@ -17,7 +13,7 @@ const layerStore = useLayerStore()
 const authStore = useAuthStore()
 const notificationStore = useNotificationStore()
 
-const emit = defineEmits(['fly-to'])
+const emit = defineEmits(['fly-to', 'toggle-directions', 'directions-to'])
 
 const showLayersMenu = ref(false)
 const showFavoritesMenu = ref(false)
@@ -54,7 +50,7 @@ const handleSearch = async () => {
     if (data && data.length > 0) searchResults.value = data
     else noResults.value = true
   } catch (error) {
-    console.error("Errore API:", error)
+    console.error('Search API error:', error)
     noResults.value = true
   } finally {
     isSearching.value = false
@@ -64,6 +60,17 @@ const handleSearch = async () => {
 const selectLocation = (lat: string | number, lon: string | number, name: string) => {
   emit('fly-to', Number(lat), Number(lon))
   searchQuery.value = name.split(',')[0]
+  searchResults.value = []
+  noResults.value = false
+}
+
+// Opens the route panel using the search result as the destination
+const directionsTo = (res: any) => {
+  emit('directions-to', {
+    lat: parseFloat(res.lat),
+    lon: parseFloat(res.lon),
+    label: res.display_name.split(',')[0]
+  })
   searchResults.value = []
   noResults.value = false
 }
@@ -138,18 +145,40 @@ const cancelToggle = () => {
   pendingLayer.value = ''
 }
 
+// Layers currently active on the map, saved together with the search
+const activeLayerKeys = () =>
+  Object.entries(layerStore.activeLayers).filter(([, on]) => on).map(([key]) => key)
+
 const toggleFavoriteResult = (res: any, event: Event) => {
   event.stopPropagation()
   if (!authStore.isLoggedIn) {
-    alert("Log in to save favorites")
+    alert('Accedi per salvare le ricerche')
     return
   }
   authStore.toggleFavorite({
     lat: parseFloat(res.lat),
     lon: parseFloat(res.lon),
     name: res.display_name.split(',')[0],
-    display_name: res.display_name
+    display_name: res.display_name,
+    layers: activeLayerKeys(),
+    forecastDay: layerStore.selectedForecastDay,
+    timeSlot: layerStore.selectedTimeSlot
   })
+}
+
+// Layer labels and colors for the chips in the saved-searches list
+const LAYER_META: Record<string, { label: string; dot: string }> = {
+  weather:  { label: 'Meteo',    dot: 'bg-sky-500' },
+  traffic:  { label: 'Traffico', dot: 'bg-orange-500' },
+  lighting: { label: 'Luci',     dot: 'bg-yellow-500' },
+  crowd:    { label: 'Folla',    dot: 'bg-purple-500' },
+}
+
+// Click on a saved search: fly to the place and restore the saved layers
+const runSavedSearch = (fav: any) => {
+  emit('fly-to', fav.lat, fav.lon)
+  if (fav.layers?.length) layerStore.applyLayers(fav.layers, fav.forecastDay ?? 0, fav.timeSlot ?? 0)
+  closeDropdowns()
 }
 
 const handleClickOutside = (event: MouseEvent) => {
@@ -182,7 +211,7 @@ onUnmounted(() => {
           v-model="searchQuery"
           @input="handleInput"
           @keyup.enter.prevent="handleSearch"
-          placeholder="Search locations..." 
+          placeholder="Cerca un luogo..."
           class="w-full pl-8 md:pl-10 pr-3 md:pr-4 py-1.5 md:py-2.5 text-xs md:text-sm bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-cyan-500/30 hover:border-cyan-500/60 rounded-lg md:rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all text-slate-900 dark:text-slate-100" 
         />
 
@@ -197,7 +226,10 @@ onUnmounted(() => {
                     <p class="text-xs text-slate-500 line-clamp-1">{{ res.display_name }}</p>
                   </div>
                 </div>
-                <button @click.stop="toggleFavoriteResult(res, $event)" class="p-2 -mr-2 text-slate-300 hover:text-amber-400 transition-colors" title="Toggle Favorite">
+                <button @click.stop="directionsTo(res)" class="p-2 text-slate-300 hover:text-cyan-500 transition-colors" title="Indicazioni">
+                  <Navigation class="w-5 h-5" />
+                </button>
+                <button @click.stop="toggleFavoriteResult(res, $event)" class="p-2 -mr-2 text-slate-300 hover:text-amber-400 transition-colors" title="Salva ricerca (con i layer attivi)">
                   <Star :class="['w-5 h-5 transition-all', authStore.isFavorite(res.display_name.split(',')[0], parseFloat(res.lat), parseFloat(res.lon)) ? 'fill-amber-400 text-amber-400' : '']" />
                 </button>
               </div>
@@ -205,39 +237,53 @@ onUnmounted(() => {
           </ul>
           <div v-else-if="noResults" class="px-4 py-6 text-center">
             <AlertCircle class="w-6 h-6 text-slate-400 mx-auto mb-2" />
-            <p class="text-sm font-bold text-slate-900 dark:text-white">No results found</p>
-            <p class="text-xs text-slate-500 mt-1">Try checking your spelling or use more generic terms.</p>
+            <p class="text-sm font-bold text-slate-900 dark:text-white">Nessun risultato trovato</p>
+            <p class="text-xs text-slate-500 mt-1">Controlla l'ortografia o usa termini più generici.</p>
           </div>
         </div>
       </div>
 
+      <!-- Directions / route -->
+      <div class="relative order-4 md:order-2 shrink-0">
+        <button @click="emit('toggle-directions')" class="flex items-center justify-center p-1.5 md:px-3.5 md:py-2.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-cyan-500/30 hover:border-cyan-500/60 rounded-lg md:rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50 active:scale-95" title="Calcola percorso">
+          <Navigation class="w-4 h-4 md:w-5 md:h-5 text-cyan-600 dark:text-cyan-400" />
+        </button>
+      </div>
+
       <!-- Favorites Dropdown -->
-      <div class="relative order-1 md:order-2 shrink-0">
-        <button @click="toggleFavoritesMenu" class="flex items-center justify-center p-1.5 md:px-3.5 md:py-2.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-cyan-500/30 hover:border-cyan-500/60 rounded-lg md:rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50 active:scale-95" title="Favorites">
+      <div class="relative order-1 md:order-3 shrink-0">
+        <button @click="toggleFavoritesMenu" class="flex items-center justify-center p-1.5 md:px-3.5 md:py-2.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-cyan-500/30 hover:border-cyan-500/60 rounded-lg md:rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50 active:scale-95" title="Ricerche salvate">
           <Star class="w-4 h-4 md:w-5 md:h-5 text-amber-500 drop-shadow-sm" />
         </button>
-        
-        <div v-if="showFavoritesMenu" class="absolute top-full mt-2 left-0 md:left-1/2 md:-translate-x-1/2 w-48 md:w-72 bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl rounded-lg md:rounded-xl shadow-xl border border-cyan-500/20 z-50 overflow-hidden">
+
+        <div v-if="showFavoritesMenu" class="absolute top-full mt-2 left-0 md:left-1/2 md:-translate-x-1/2 w-56 md:w-72 bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl rounded-lg md:rounded-xl shadow-xl border border-cyan-500/20 z-50 overflow-hidden">
           <div v-if="!authStore.isLoggedIn" class="p-4 md:p-6 text-center">
             <Star class="w-4 h-4 md:w-6 md:h-6 text-slate-300 mx-auto mb-1 md:mb-2" />
-            <p class="text-xs md:text-sm font-bold text-slate-900 dark:text-white">Log in to save favorites</p>
+            <p class="text-xs md:text-sm font-bold text-slate-900 dark:text-white">Accedi per salvare le ricerche</p>
           </div>
           <div v-else-if="authStore.user?.favorites?.length === 0" class="p-4 md:p-6 text-center">
             <Star class="w-4 h-4 md:w-6 md:h-6 text-slate-300 mx-auto mb-1 md:mb-2" />
-            <p class="text-xs md:text-sm font-bold text-slate-900 dark:text-white">No favorites yet</p>
-            <p class="text-[10px] md:text-xs text-slate-500 mt-1">Search for a place and click the star to add it.</p>
+            <p class="text-xs md:text-sm font-bold text-slate-900 dark:text-white">Nessuna ricerca salvata</p>
+            <p class="text-[10px] md:text-xs text-slate-500 mt-1">Cerca un luogo, attiva i layer e tocca la stella per salvare.</p>
           </div>
           <ul v-else class="max-h-60 overflow-y-auto">
             <li v-for="fav in authStore.user?.favorites" :key="fav.lat + fav.lon">
-              <div class="w-full flex items-center justify-between px-3 py-2 md:px-4 md:py-3 hover:bg-cyan-50 dark:hover:bg-slate-800 transition-colors border-b border-slate-100 dark:border-slate-800 last:border-0 cursor-pointer" @click="selectLocation(fav.lat, fav.lon, fav.display_name)">
+              <div class="w-full flex items-center justify-between px-3 py-2 md:px-4 md:py-3 hover:bg-cyan-50 dark:hover:bg-slate-800 transition-colors border-b border-slate-100 dark:border-slate-800 last:border-0 cursor-pointer" @click="runSavedSearch(fav)">
                 <div class="flex items-start gap-2 md:gap-3 w-full overflow-hidden">
                   <Star class="w-3.5 h-3.5 md:w-4 md:h-4 mt-0.5 fill-amber-400 text-amber-400 flex-shrink-0" />
                   <div class="flex-1 min-w-0 pr-2">
                     <p class="text-xs md:text-sm font-bold text-slate-900 dark:text-white truncate">{{ fav.name }}</p>
                     <p class="text-[10px] md:text-xs text-slate-500 line-clamp-1">{{ fav.display_name }}</p>
+                    <!-- Saved layer chips -->
+                    <div v-if="fav.layers?.length" class="flex flex-wrap gap-1 mt-1">
+                      <span v-for="l in fav.layers" :key="l" class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-[9px] font-semibold text-slate-600 dark:text-slate-300">
+                        <span :class="['w-1.5 h-1.5 rounded-full', LAYER_META[l]?.dot ?? 'bg-slate-400']"></span>
+                        {{ LAYER_META[l]?.label ?? l }}
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <button @click.stop="authStore.toggleFavorite(fav)" class="p-1 md:p-2 -mr-1 md:-mr-2 text-amber-400 hover:text-slate-400 transition-colors" title="Remove Favorite">
+                <button @click.stop="authStore.toggleFavorite(fav)" class="p-1 md:p-2 -mr-1 md:-mr-2 text-amber-400 hover:text-slate-400 transition-colors" title="Rimuovi ricerca salvata">
                   <Star class="w-3.5 h-3.5 md:w-4 md:h-4 fill-amber-400" />
                 </button>
               </div>
@@ -247,8 +293,8 @@ onUnmounted(() => {
       </div>
 
       <!-- Notifications Bell -->
-      <div class="relative order-2 md:order-3 shrink-0">
-        <button @click="toggleNotificationsMenu" class="relative flex items-center justify-center p-1.5 md:px-3.5 md:py-2.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-cyan-500/30 hover:border-cyan-500/60 rounded-lg md:rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50 active:scale-95" title="Notifications">
+      <div class="relative order-2 md:order-4 shrink-0">
+        <button @click="toggleNotificationsMenu" class="relative flex items-center justify-center p-1.5 md:px-3.5 md:py-2.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-cyan-500/30 hover:border-cyan-500/60 rounded-lg md:rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50 active:scale-95" title="Notifiche">
           <BellRing v-if="notificationStore.unreadCount > 0" class="w-4 h-4 md:w-5 md:h-5 text-red-500 animate-[bell-ring_1s_ease-in-out_infinite]" />
           <Bell v-else class="w-4 h-4 md:w-5 md:h-5 text-slate-500 dark:text-slate-400" />
           <span v-if="notificationStore.unreadCount > 0" class="absolute -top-1 -right-1 min-w-[16px] h-4 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center px-0.5 shadow-md">
@@ -261,37 +307,37 @@ onUnmounted(() => {
           <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-800">
             <span class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <Bell class="w-4 h-4 text-cyan-500" />
-              Notifications
+              Notifiche
               <span v-if="notificationStore.unreadCount > 0" class="px-1.5 py-0.5 bg-red-500 text-white text-[9px] font-black rounded-full">{{ notificationStore.unreadCount }}</span>
             </span>
             <button v-if="notificationStore.active.length > 0" @click="notificationStore.dismissAll()" class="text-[10px] text-slate-500 hover:text-slate-800 dark:hover:text-white font-medium transition-colors">
-              Dismiss all
+              Ignora tutte
             </button>
           </div>
 
-          <!-- Lista notifiche -->
+          <!-- Notifications list -->
           <div class="max-h-72 overflow-y-auto">
             <!-- Empty state -->
             <div v-if="notificationStore.active.length === 0" class="py-8 px-4 text-center">
               <CheckCircle2 class="w-8 h-8 text-emerald-400 mx-auto mb-2" />
-              <p class="text-sm font-bold text-slate-900 dark:text-white">All clear!</p>
-              <p class="text-xs text-slate-500 mt-1">No active alerts at the moment.</p>
+              <p class="text-sm font-bold text-slate-900 dark:text-white">Tutto a posto!</p>
+              <p class="text-xs text-slate-500 mt-1">Nessun avviso attivo al momento.</p>
             </div>
 
-            <!-- Notifica -->
+            <!-- Notification -->
             <div
               v-for="n in notificationStore.active"
               :key="n._id"
               class="flex items-start gap-3 px-4 py-3 border-b border-slate-100 dark:border-slate-800/60 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors"
             >
-              <!-- Icona tipo -->
+              <!-- Type icon -->
               <div class="shrink-0 mt-0.5">
                 <CheckCircle2 v-if="n.type === 'success'" class="w-4 h-4 text-emerald-500" />
                 <TriangleAlert v-else-if="n.type === 'error'" class="w-4 h-4 text-red-500" />
                 <TriangleAlert v-else class="w-4 h-4 text-amber-500" />
               </div>
 
-              <!-- Contenuto -->
+              <!-- Content -->
               <div class="flex-1 min-w-0">
                 <p class="text-xs font-medium text-slate-800 dark:text-slate-200 leading-snug">{{ n.message }}</p>
                 <div class="flex items-center gap-1.5 mt-1">
@@ -315,10 +361,10 @@ onUnmounted(() => {
       </div>
 
       <!-- Layers Dropdown -->
-      <div class="relative order-3 md:order-4 shrink-0">
+      <div class="relative order-3 md:order-5 shrink-0">
         <button @click="toggleLayersMenu" class="flex items-center gap-1.5 p-1.5 md:px-5 md:py-2.5 text-xs md:text-sm bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-cyan-500/30 hover:border-cyan-500/60 rounded-lg md:rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50 active:scale-95">
           <Layers class="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
-          <span class="hidden md:inline">Layers</span>
+          <span class="hidden md:inline">Layer</span>
         </button>
         
         <div v-if="showLayersMenu" class="absolute top-full mt-2 left-0 md:left-1/2 md:-translate-x-1/2 w-48 md:w-64 bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl rounded-lg md:rounded-xl shadow-xl border border-cyan-500/20 z-50 p-1 md:p-1.5 flex flex-col gap-0.5 md:gap-1">
@@ -327,35 +373,35 @@ onUnmounted(() => {
           <div class="flex items-center gap-1 mb-1 pb-1 border-b border-cyan-500/10 dark:border-slate-700/50">
             <button @click="layerStore.setAllLayers(true)" class="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 text-[10px] md:text-xs rounded-md hover:bg-cyan-50 dark:hover:bg-slate-800 transition-all text-slate-700 dark:text-slate-300 font-medium uppercase tracking-wider">
               <Eye class="w-3 h-3 text-cyan-500" />
-              <span>Show All</span>
+              <span>Mostra tutti</span>
             </button>
             <button @click="layerStore.setAllLayers(false)" class="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 text-[10px] md:text-xs rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-slate-700 dark:text-slate-300 font-medium uppercase tracking-wider">
               <EyeOff class="w-3 h-3 text-slate-400" />
-              <span>Hide All</span>
+              <span>Nascondi tutti</span>
             </button>
           </div>
           
           <!-- Weather -->
           <button @click="handleLayerToggle('weather')" class="w-full flex items-center justify-between px-2 py-1.5 md:px-3 md:py-2 text-xs md:text-sm rounded-md md:rounded-lg hover:bg-cyan-50 dark:hover:bg-slate-800 transition-all text-slate-900 dark:text-slate-100">
-            <span class="flex items-center gap-2 md:gap-2.5"><div :class="['w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-sky-500', layerStore.activeLayers.weather ? 'opacity-100' : 'opacity-30']"></div>Weather</span>
+            <span class="flex items-center gap-2 md:gap-2.5"><div :class="['w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-sky-500', layerStore.activeLayers.weather ? 'opacity-100' : 'opacity-30']"></div>Meteo</span>
             <div :class="['w-6 h-3 md:w-8 md:h-4 rounded-full flex items-center px-0.5 md:px-1 transition-all', layerStore.activeLayers.weather ? 'bg-cyan-500' : 'bg-slate-300 dark:bg-slate-700']"><div :class="['w-2 h-2 md:w-2.5 md:h-2.5 bg-white rounded-full transition-all transform', layerStore.activeLayers.weather ? 'translate-x-3 md:translate-x-3.5' : 'translate-x-0']"></div></div>
           </button>
           
           <!-- Traffic -->
           <button @click="handleLayerToggle('traffic')" class="w-full flex items-center justify-between px-2 py-1.5 md:px-3 md:py-2 text-xs md:text-sm rounded-md md:rounded-lg hover:bg-cyan-50 dark:hover:bg-slate-800 transition-all text-slate-900 dark:text-slate-100">
-            <span class="flex items-center gap-2 md:gap-2.5"><div :class="['w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-orange-500', layerStore.activeLayers.traffic ? 'opacity-100' : 'opacity-30']"></div>Traffic Flow</span>
+            <span class="flex items-center gap-2 md:gap-2.5"><div :class="['w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-orange-500', layerStore.activeLayers.traffic ? 'opacity-100' : 'opacity-30']"></div>Traffico</span>
             <div :class="['w-6 h-3 md:w-8 md:h-4 rounded-full flex items-center px-0.5 md:px-1 transition-all', layerStore.activeLayers.traffic ? 'bg-cyan-500' : 'bg-slate-300 dark:bg-slate-700']"><div :class="['w-2 h-2 md:w-2.5 md:h-2.5 bg-white rounded-full transition-all transform', layerStore.activeLayers.traffic ? 'translate-x-3 md:translate-x-3.5' : 'translate-x-0']"></div></div>
           </button>
 
           <!-- Lighting -->
           <button @click="handleLayerToggle('lighting')" class="w-full flex items-center justify-between px-2 py-1.5 md:px-3 md:py-2 text-xs md:text-sm rounded-md md:rounded-lg hover:bg-cyan-50 dark:hover:bg-slate-800 transition-all text-slate-900 dark:text-slate-100">
-            <span class="flex items-center gap-2 md:gap-2.5"><div :class="['w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-yellow-500', layerStore.activeLayers.lighting ? 'opacity-100' : 'opacity-30']"></div>Smart Lighting</span>
+            <span class="flex items-center gap-2 md:gap-2.5"><div :class="['w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-yellow-500', layerStore.activeLayers.lighting ? 'opacity-100' : 'opacity-30']"></div>Illuminazione</span>
             <div :class="['w-6 h-3 md:w-8 md:h-4 rounded-full flex items-center px-0.5 md:px-1 transition-all', layerStore.activeLayers.lighting ? 'bg-cyan-500' : 'bg-slate-300 dark:bg-slate-700']"><div :class="['w-2 h-2 md:w-2.5 md:h-2.5 bg-white rounded-full transition-all transform', layerStore.activeLayers.lighting ? 'translate-x-3 md:translate-x-3.5' : 'translate-x-0']"></div></div>
           </button>
 
           <!-- Crowd Density -->
           <button @click="handleLayerToggle('crowd')" class="w-full flex items-center justify-between px-2 py-1.5 md:px-3 md:py-2 text-xs md:text-sm rounded-md md:rounded-lg hover:bg-cyan-50 dark:hover:bg-slate-800 transition-all text-slate-900 dark:text-slate-100">
-            <span class="flex items-center gap-2 md:gap-2.5"><div :class="['w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-purple-500', layerStore.activeLayers.crowd ? 'opacity-100' : 'opacity-30']"></div>Crowd Density</span>
+            <span class="flex items-center gap-2 md:gap-2.5"><div :class="['w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-purple-500', layerStore.activeLayers.crowd ? 'opacity-100' : 'opacity-30']"></div>Densità Folla</span>
             <div :class="['w-6 h-3 md:w-8 md:h-4 rounded-full flex items-center px-0.5 md:px-1 transition-all', layerStore.activeLayers.crowd ? 'bg-cyan-500' : 'bg-slate-300 dark:bg-slate-700']"><div :class="['w-2 h-2 md:w-2.5 md:h-2.5 bg-white rounded-full transition-all transform', layerStore.activeLayers.crowd ? 'translate-x-3 md:translate-x-3.5' : 'translate-x-0']"></div></div>
           </button>
 
@@ -371,20 +417,20 @@ onUnmounted(() => {
       <div class="p-6">
         <div class="flex items-center gap-3 mb-4 text-amber-500">
           <AlertCircle class="w-6 h-6" />
-          <h3 class="text-lg font-bold text-slate-900 dark:text-white">Layer Overlap Warning</h3>
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white">Sovrapposizione layer</h3>
         </div>
         <p class="text-sm text-slate-600 dark:text-slate-300 mb-6 leading-relaxed">
-          Visualizing both Crowd Density and Smart Lighting simultaneously might be confusing as their heatmaps can overlap.
+          Visualizzare contemporaneamente Densità Folla e Illuminazione potrebbe creare confusione, dato che le heatmap possono sovrapporsi.
         </p>
-        
+
         <label class="flex items-center gap-3 mb-6 cursor-pointer group w-max">
           <input type="checkbox" v-model="dontShowAgain" class="w-4 h-4 rounded border-slate-300 dark:border-slate-700 text-cyan-500 focus:ring-cyan-500 dark:bg-slate-800" />
-          <span class="text-sm text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">Don't show this again</span>
+          <span class="text-sm text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">Non mostrare più</span>
         </label>
 
         <div class="flex justify-end gap-3">
           <button @click="cancelToggle" class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors">
-            Cancel
+            Annulla
           </button>
           <button @click="confirmToggle" class="px-4 py-2 text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-500 rounded-lg shadow-lg shadow-cyan-500/30 transition-colors">
             OK

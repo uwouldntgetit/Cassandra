@@ -13,7 +13,7 @@ export const TRENTO_ZONES = [
   { id: 'piedicastello',  name: 'Piedicastello',    lat: 46.0710, lon: 11.1050, baseDensity: 550,  profile: 'residential' },
 ]
 
-// Moltiplicatori per profilo di zona e condizione del giorno
+// Multipliers per zone profile and day condition
 export const PROFILE_MULTIPLIERS = {
   tourist_shopping: { weekday: 1.0,  weekend: 1.6,  summer: 1.35, holiday: 1.7  },
   commuter:         { weekday: 1.5,  weekend: 0.4,  summer: 0.85, holiday: 0.3  },

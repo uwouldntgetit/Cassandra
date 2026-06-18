@@ -18,7 +18,7 @@ const forecastDay = computed(() => layerStore.forecastData?.[layerStore.selected
 const slot        = computed(() => layerStore.selectedTimeSlot)
 const slotLabel   = computed(() => isForecast.value ? TIME_SLOTS[slot.value]?.label : null)
 
-// Densità aggiustata per fascia oraria (solo in forecast mode)
+// Density adjusted by time slot (forecast mode only)
 const adjustedZones = computed(() => {
   if (!isForecast.value || !forecastDay.value) return forecastDay.value?.zones ?? []
   return forecastDay.value.zones.map(z => {
@@ -39,6 +39,10 @@ const densityFormatted = computed(() => {
 })
 
 const displayHotspot = computed(() => isForecast.value ? adjustedHotspot.value : liveData.value?.hotspot ?? '—')
+
+// Italian labels for the backend's English status enum (Low/Moderate/High)
+const STATUS_LABELS: Record<string, string> = { Low: 'Bassa', Moderate: 'Moderata', High: 'Alta' }
+const statusLabel = computed(() => STATUS_LABELS[liveData.value?.status ?? 'High'] ?? liveData.value?.status)
 
 const chartData = computed(() => {
   if (isForecast.value && layerStore.forecastData) {
@@ -74,13 +78,13 @@ const getChartOptions = () => ({
 <template>
   <BasePanel :isExpanded="isExpanded" :isLoading="isLoading" borderColorClass="border-purple-500/20" hoverColorClass="hover:text-purple-500" @toggle="emit('toggle')">
     <template #header-icon><Users class="w-3 h-3 md:w-5 md:h-5 text-purple-500" /></template>
-    <template #header-title>Crowd Density</template>
+    <template #header-title>Densità folla</template>
     <template #status-badge>
-      <span v-if="isForecast" class="px-1.5 py-0.5 md:px-2 md:py-0.5 bg-orange-500/10 text-orange-600 dark:text-orange-400 text-[8px] md:text-[10px] font-bold rounded-md md:rounded-lg border border-orange-500/20 uppercase">{{ slotLabel ?? 'Forecast' }}</span>
-      <span v-else class="px-1.5 py-0.5 md:px-2 md:py-0.5 bg-red-500/10 text-red-500 text-[8px] md:text-[10px] font-bold rounded-md md:rounded-lg border border-red-500/20 uppercase">{{ liveData?.status ?? 'High' }}</span>
+      <span v-if="isForecast" class="px-1.5 py-0.5 md:px-2 md:py-0.5 bg-orange-500/10 text-orange-600 dark:text-orange-400 text-[8px] md:text-[10px] font-bold rounded-md md:rounded-lg border border-orange-500/20 uppercase">{{ slotLabel ?? 'Previsione' }}</span>
+      <span v-else class="px-1.5 py-0.5 md:px-2 md:py-0.5 bg-red-500/10 text-red-500 text-[8px] md:text-[10px] font-bold rounded-md md:rounded-lg border border-red-500/20 uppercase">{{ statusLabel }}</span>
     </template>
     <template #main-value>{{ densityFormatted }}</template>
-    <template #main-unit>{{ isForecast ? 'PREDICTED' : 'PEOPLE / KM²' }}</template>
+    <template #main-unit>{{ isForecast ? 'PREVISTO' : 'PERSONE / KM²' }}</template>
     <template #secondary-metrics>
       <div class="flex items-center gap-0.5 md:gap-1.5 text-slate-500 dark:text-slate-400">
         <Building class="w-2 h-2 md:w-4 md:h-4 text-purple-500" />
@@ -93,7 +97,7 @@ const getChartOptions = () => ({
     </template>
     <template #chart-title>
       <Activity class="w-2.5 h-2.5 md:w-3.5 md:h-3.5" />
-      {{ isForecast ? 'City Density 7 Days (×1000 p/km²)' : 'Density Trend' }}
+      {{ isForecast ? 'Densità città 7 giorni (×1000 p/km²)' : 'Andamento densità' }}
     </template>
     <template #chart>
       <Bar v-if="isForecast" :data="chartData" :options="getChartOptions()" />

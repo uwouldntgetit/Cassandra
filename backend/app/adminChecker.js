@@ -1,4 +1,4 @@
-// Middleware: va usato DOPO tokenChecker. Blocca chi non è admin.
+// Middleware: must run AFTER tokenChecker. Rejects non-admin users.
 const adminChecker = (req, res, next) => {
   if (req.loggedUser?.role !== 'admin')
     return res.status(403).json({ success: false, message: 'Admin access required.' })

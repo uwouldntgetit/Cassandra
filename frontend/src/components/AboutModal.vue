@@ -1,9 +1,6 @@
 <script setup lang="ts">
 /**
- * AboutModal.vue
- * Informational modal displaying project details, team members, and data sources.
- * 
- * Modale informativo che mostra i dettagli del progetto, i membri del team e le fonti dei dati.
+ * Informational modal showing project details and data sources.
  */
 import { X, MapPin, Database, Github } from 'lucide-vue-next'
 import { onMounted, onUnmounted } from 'vue'
@@ -70,7 +67,7 @@ onUnmounted(() => {
           <!-- Data Sources -->
           <div class="space-y-3">
             <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-              <Database class="w-4 h-4" /> Data Sources
+              <Database class="w-4 h-4" /> Fonti dati
             </h3>
             <div class="flex flex-wrap gap-2">
               <span class="px-2.5 py-1 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 text-xs rounded-lg border border-cyan-200 dark:border-cyan-800">Open-Meteo</span>
@@ -82,7 +79,7 @@ onUnmounted(() => {
           <!-- Repo Button -->
           <BaseButton variant="github" class="w-full mt-2 py-3 rounded-xl" @click="openGithub">
             <Github class="w-5 h-5" />
-            View on GitHub
+            Vedi su GitHub
           </BaseButton>
           
         </div>

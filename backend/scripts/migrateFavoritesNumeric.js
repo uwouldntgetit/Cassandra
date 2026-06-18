@@ -1,5 +1,5 @@
-// Migrazione one-shot: converte lat/lon dei preferiti da String a Number.
-// Uso: node scripts/migrateFavoritesNumeric.js
+// One-shot migration: converts favorite lat/lon from String to Number.
+// Usage: node scripts/migrateFavoritesNumeric.js
 import 'dotenv/config'
 import mongoose from 'mongoose'
 
@@ -15,5 +15,5 @@ for await (const user of cursor) {
   migrated++
 }
 
-console.log(`Utenti migrati: ${migrated}`)
+console.log(`Migrated users: ${migrated}`)
 await mongoose.disconnect()

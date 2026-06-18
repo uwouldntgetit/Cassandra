@@ -39,7 +39,7 @@ router.get('/', async (req, res) => {
     const [history, weatherDaily] = await Promise.all([
       CrowdHistory.find({}).sort({ date: -1 }).lean(),
       fetchWeatherForecast(days).catch(() => null),
-      // Pre-warm della cache strade (il risultato viene ignorato, ma la cache viene popolata)
+      // Pre-warm the roads cache (result ignored, but the cache gets populated)
       getForecastTrafficGeoJSON(new Date(), isItalianHoliday).catch(() => null)
     ])
 
@@ -55,7 +55,7 @@ router.get('/', async (req, res) => {
       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6
       const summer    = isSummer(targetDate)
 
-      // --- Meteo (Open-Meteo o fallback sintetico) ---
+      // --- Weather (Open-Meteo, or synthetic fallback) ---
       let weather
       if (weatherDaily) {
         const code = weatherDaily.weather_code[i]
@@ -67,7 +67,7 @@ router.get('/', async (req, res) => {
           ...wmoToIcon(code)
         }
       } else {
-        // Fallback sintetico con variazione realistica giorno per giorno
+        // Synthetic fallback with realistic day-to-day variation
         const base = summer ? 23 : 15
         const seed = targetDate.getDate() + targetDate.getMonth() * 31
         const sin1 = Math.sin(seed * 0.7) * 3
@@ -84,12 +84,12 @@ router.get('/', async (req, res) => {
         }
       }
 
-      // --- Traffico (strade reali da Overpass, congestione pattern) ---
+      // --- Traffic (real roads from Overpass, pattern-based congestion) ---
       const trafficSegments = await getForecastTrafficGeoJSON(targetDate, isItalianHoliday).catch(() => null)
       const tStats = trafficSegments ? trafficStats(trafficSegments) : { congestionLevel: 'low', avgSpeed: 40, delay: 5 }
       const traffic = { ...tStats, segments: trafficSegments ?? { type: 'FeatureCollection', features: [] } }
 
-      // --- Affollamento (media pesata storico + moltiplicatori) ---
+      // --- Crowd (weighted average of history + multipliers) ---
       const zones = []
       for (const zone of TRENTO_ZONES) {
         const profile      = PROFILE_MULTIPLIERS[zone.profile]

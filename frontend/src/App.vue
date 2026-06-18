@@ -1,11 +1,7 @@
 <script setup lang="ts">
 /**
- * App.vue
- * Main orchestrator component.
- * Responsible for layout positioning, theme management, and mounting global modals.
- * 
- * Componente principale di orchestrazione.
- * Responsabile del posizionamento del layout, gestione del tema e caricamento dei modali globali.
+ * Main orchestrator component: layout positioning, theme management,
+ * and mounting of the global modals.
  */
 import { ref, onMounted } from 'vue'
 

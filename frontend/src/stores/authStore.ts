@@ -7,6 +7,10 @@ export interface FavoritePlace {
   lon: number
   name: string
   display_name: string
+  // Map state saved together with the place (saved search)
+  layers?: string[]
+  forecastDay?: number
+  timeSlot?: number
 }
 
 interface User {
@@ -42,7 +46,7 @@ export const useAuthStore = defineStore('auth', {
     token: null as string | null
   }),
   actions: {
-    // Ripristina la sessione da localStorage (chiamato in main.ts prima del mount)
+    // Restores the session from localStorage (called in main.ts before mount)
     init() {
       const token = localStorage.getItem('token')
       const raw = localStorage.getItem('user')
@@ -60,7 +64,7 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    // Salva token e dati utente nello store e in localStorage
+    // Stores token and user data in the store and in localStorage
     setSession(data: { token: string; id: string; name: string; email: string; role: string }) {
       this.token = data.token
       this.user = {

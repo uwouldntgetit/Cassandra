@@ -71,6 +71,17 @@ describe('Gestione preferiti', () => {
     favoriteId = res.body.favorite._id
   })
 
+  test('POST /me/favorites salva i layer e filtra quelli non validi', async () => {
+    const res = await request(app)
+      .post('/api/v1/users/me/favorites')
+      .set('Authorization', `Bearer ${authToken}`)
+      .send({ name: 'Università', lat: 46.066, lon: 11.1498, layers: ['weather', 'hacked', 'crowd'], forecastDay: 2, timeSlot: 1 })
+    expect(res.status).toBe(201)
+    expect(res.body.favorite.layers).toEqual(['weather', 'crowd'])
+    expect(res.body.favorite.forecastDay).toBe(2)
+    expect(res.body.favorite.timeSlot).toBe(1)
+  })
+
   test('POST /me/favorites rifiuta duplicato', async () => {
     const res = await request(app)
       .post('/api/v1/users/me/favorites')

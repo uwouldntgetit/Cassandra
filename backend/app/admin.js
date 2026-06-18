@@ -7,7 +7,7 @@ import SystemEvent from './models/systemEvent.js'
 const router = Router()
 router.use(adminChecker)
 
-// GET /api/v1/admin/metrics — statistiche dashboard
+// GET /api/v1/admin/metrics — dashboard statistics
 router.get('/metrics', async (req, res) => {
   const [totalSensors, activeSensors, activeAlerts, totalUsers] = await Promise.all([
     Sensor.countDocuments(),
@@ -24,14 +24,14 @@ router.get('/metrics', async (req, res) => {
     activeSensors,
     totalSensors,
     onlinePercentage,
-    systemLoad: 34,        // valore simulato
+    systemLoad: 34,        // mock value
     activeAlerts,
     totalUsers,
-    apiRequests: '142k'    // valore simulato
+    apiRequests: '142k'    // mock value
   })
 })
 
-// GET /api/v1/admin/events — eventi di sistema recenti
+// GET /api/v1/admin/events — recent system events
 router.get('/events', async (req, res) => {
   const events = await SystemEvent.find().sort({ createdAt: -1 }).limit(20).exec()
   res.status(200).json(events.map(e => ({
@@ -44,7 +44,7 @@ router.get('/events', async (req, res) => {
   })))
 })
 
-// PATCH /api/v1/admin/events/:id — aggiorna stato evento
+// PATCH /api/v1/admin/events/:id — update event status
 router.patch('/events/:id', async (req, res) => {
   const { status } = req.body
   const allowed = ['Unresolved', 'Investigating', 'Resolved']
@@ -63,7 +63,7 @@ router.patch('/events/:id', async (req, res) => {
   res.status(200).json({ success: true, event })
 })
 
-// GET /api/v1/admin/sensors — lista sensori
+// GET /api/v1/admin/sensors — sensor list
 router.get('/sensors', async (req, res) => {
   const sensors = await Sensor.find().sort({ type: 1 }).exec()
   res.status(200).json(sensors.map(s => ({
@@ -77,7 +77,7 @@ router.get('/sensors', async (req, res) => {
   })))
 })
 
-// GET /api/v1/admin/users — lista utenti
+// GET /api/v1/admin/users — user list
 router.get('/users', async (req, res) => {
   const users = await User.find().select('-password').sort({ createdAt: -1 }).exec()
   res.status(200).json(users.map(u => ({

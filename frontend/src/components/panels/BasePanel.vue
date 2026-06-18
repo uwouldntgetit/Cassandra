@@ -67,7 +67,7 @@ const emit = defineEmits(['toggle'])
           <slot name="secondary-metrics" />
         </div>
         <button @click="emit('toggle')" class="flex items-center justify-between w-full pt-1.5 md:pt-3 border-t border-slate-100 dark:border-slate-800 text-[8px] md:text-[11px] font-bold uppercase tracking-wider text-slate-400 transition-colors" :class="[hoverColorClass, isExpanded ? 'md:pb-3' : 'md:pb-0']">
-          <span>{{ isExpanded ? 'Hide' : 'Details' }}</span>
+          <span>{{ isExpanded ? 'Nascondi' : 'Dettagli' }}</span>
           <ChevronDown class="w-3 h-3 md:w-4 md:h-4 transition-transform duration-300" :class="isExpanded ? 'rotate-90 md:rotate-180' : '-rotate-90 md:rotate-0'" />
         </button>
       </div>

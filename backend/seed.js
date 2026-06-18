@@ -33,7 +33,7 @@ function syntheticDensity(zone, date) {
   return gaussianNoise(d)
 }
 
-// Genera un cluster di punti con distribuzione gaussiana (come il frontend)
+// Generates a cluster of points with a Gaussian distribution (matching the frontend)
 function generateCluster(centerLat, centerLon, count, spread = 0.005) {
   const points = []
   for (let i = 0; i < count; i++) {
@@ -51,22 +51,22 @@ function generateCluster(centerLat, centerLon, count, spread = 0.005) {
 }
 
 async function seed() {
-  // Il seed cancella tutte le collezioni del DB puntato da DB_URL:
-  // richiede --force e le password dei due account demo via env
+  // The seed wipes every collection of the DB pointed to by DB_URL:
+  // requires --force and the two demo account passwords via env
   if (!process.argv.includes('--force')) {
-    console.error('ATTENZIONE: il seed cancella TUTTI i dati del DB puntato da DB_URL.')
-    console.error('Per procedere: npm run seed -- --force')
+    console.error('WARNING: the seed deletes ALL data in the DB pointed to by DB_URL.')
+    console.error('To proceed: npm run seed -- --force')
     process.exit(1)
   }
   if (!process.env.SEED_ADMIN_PASSWORD || !process.env.SEED_USER_PASSWORD) {
-    console.error('Imposta SEED_ADMIN_PASSWORD e SEED_USER_PASSWORD nel file .env')
+    console.error('Set SEED_ADMIN_PASSWORD and SEED_USER_PASSWORD in the .env file')
     process.exit(1)
   }
 
   await mongoose.connect(process.env.DB_URL)
   console.log('Connected to MongoDB Atlas')
 
-  // Pulizia collezioni
+  // Clear collections
   await Promise.all([
     User.deleteMany(),
     Sensor.deleteMany(),
@@ -76,7 +76,7 @@ async function seed() {
   ])
   console.log('Collections cleared')
 
-  // --- UTENTI ---
+  // --- USERS ---
   const adminPassword = await bcrypt.hash(process.env.SEED_ADMIN_PASSWORD, 10)
   const userPassword = await bcrypt.hash(process.env.SEED_USER_PASSWORD, 10)
 
@@ -86,7 +86,7 @@ async function seed() {
   ])
   console.log('Users created')
 
-  // --- SENSORI ---
+  // --- SENSORS ---
   await Sensor.insertMany([
     { name: 'Weather Station Centro', type: 'weather', location: 'Piazza Duomo', status: 'online' },
     { name: 'Weather Station Nord', type: 'weather', location: 'Trento Nord', status: 'online' },
@@ -106,7 +106,7 @@ async function seed() {
   ])
   console.log('Sensors created')
 
-  // --- LETTURE LAYER ---
+  // --- LAYER READINGS ---
 
   // Weather
   await Reading.create({
@@ -189,19 +189,19 @@ async function seed() {
   })
   console.log('Readings created')
 
-  // --- SYSTEM EVENTS (con timestamp distribuiti) ---
+  // --- SYSTEM EVENTS (with spread-out timestamps) ---
   const now = new Date()
   const minsAgo = (m) => new Date(now - m * 60000)
 
   await SystemEvent.insertMany([
-    // --- Notifiche pubbliche (visibili agli utenti) ---
+    // --- Public notifications (visible to users) ---
     { type: 'warning', message: 'Affollamento elevato in Piazza Duomo (>2.8K p/km²)',   status: 'Investigating', public: true,  createdAt: minsAgo(18),  updatedAt: minsAgo(12) },
     { type: 'warning', message: 'Qualità aria AQI >80 — zona industriale Gardolo',      status: 'Unresolved',    public: true,  createdAt: minsAgo(45),  updatedAt: minsAgo(45) },
     { type: 'warning', message: 'Traffico intenso su Viale Verona — code >1.5km',       status: 'Investigating', public: true,  createdAt: minsAgo(130), updatedAt: minsAgo(95) },
     { type: 'warning', message: 'Allerta meteo: forti raffiche di vento previste',      status: 'Unresolved',    public: true,  createdAt: minsAgo(200), updatedAt: minsAgo(200) },
     { type: 'success', message: 'Traffico su Via Brennero tornato nella norma',         status: 'Resolved',      public: true,  createdAt: minsAgo(480), updatedAt: minsAgo(460) },
     { type: 'success', message: 'Qualità aria migliorata — AQI tornato sotto 50',       status: 'Resolved',      public: true,  createdAt: minsAgo(700), updatedAt: minsAgo(680) },
-    // --- Notifiche tecniche (solo admin) ---
+    // --- Technical notifications (admin only) ---
     { type: 'error',   message: 'Traffic Sensor T-04 offline — Via Brennero',           status: 'Unresolved',    public: false, createdAt: minsAgo(20),  updatedAt: minsAgo(20) },
     { type: 'error',   message: 'API Rate limit superato sul Weather Node',              status: 'Investigating', public: false, createdAt: minsAgo(210), updatedAt: minsAgo(100) },
     { type: 'success', message: 'Firmware aggiornato su Lighting Sector 4',             status: 'Resolved',      public: false, createdAt: minsAgo(320), updatedAt: minsAgo(310) },
@@ -210,7 +210,7 @@ async function seed() {
   ])
   console.log('System events created')
 
-  // --- CROWD HISTORY (45 giorni di storico per zona) ---
+  // --- CROWD HISTORY (45 days of history per zone) ---
   const historyDocs = []
   for (let daysAgo = 1; daysAgo <= 45; daysAgo++) {
     const date = new Date()
@@ -230,7 +230,7 @@ async function seed() {
     }
   }
   await CrowdHistory.insertMany(historyDocs)
-  console.log(`Crowd history created: ${historyDocs.length} records (${TRENTO_ZONES.length} zone × 45 giorni)`)
+  console.log(`Crowd history created: ${historyDocs.length} records (${TRENTO_ZONES.length} zones × 45 days)`)
 
   console.log('\nSeed completed!')
   console.log('Admin login: admin@cassandra.it (password: SEED_ADMIN_PASSWORD)')
