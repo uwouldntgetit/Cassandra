@@ -15,3 +15,17 @@ services:
         sync: false
       - key: GOOGLE_CLIENT_ID
         sync: false
+
+  - type: web
+    runtime: static
+    name: cassandra-frontend
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    # VITE_API_URL e VITE_GOOGLE_CLIENT_ID sono letti da frontend/.env.production
+    # in fase di build (vite build).
+    # SPA: ogni rotta sconosciuta serve index.html (Vue Router lato client)
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
