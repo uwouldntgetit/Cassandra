@@ -22,8 +22,13 @@ services:
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
-    # VITE_API_URL e VITE_GOOGLE_CLIENT_ID sono letti da frontend/.env.production
-    # in fase di build (vite build).
+    # Valori pubblici (finiscono nel bundle JS): definiti qui così il Blueprint
+    # è autosufficiente e non dipende da frontend/.env.production (gitignorato).
+    envVars:
+      - key: VITE_API_URL
+        value: https://cassandra-rdy2.onrender.com
+      - key: VITE_GOOGLE_CLIENT_ID
+        value: 807179757624-b8scdn196tuil986t8rl72ljcc6kqhqt.apps.googleusercontent.com
     # SPA: ogni rotta sconosciuta serve index.html (Vue Router lato client)
     routes:
       - type: rewrite
