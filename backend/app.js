@@ -4,7 +4,15 @@ import cors from 'cors'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import swaggerUi from 'swagger-ui-express'
-import { swaggerSpec } from './swagger.js'
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
+import * as yaml from 'js-yaml'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+const swaggerSpec = yaml.load(fs.readFileSync(path.join(__dirname, 'openapi.yaml'), 'utf8'))
 
 import authRouter          from './app/authentication.js'
 import usersRouter         from './app/users.js'
