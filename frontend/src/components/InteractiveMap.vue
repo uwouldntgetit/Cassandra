@@ -2,11 +2,6 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import 'leaflet/dist/leaflet.css'
 import * as L from 'leaflet'
-// leaflet.heat is a CJS side-effect plugin that attaches to window.L.
-// Vite's ESM import creates a namespace object that isn't the same reference,
-// so we must expose L globally BEFORE importing the plugin.
-;(window as any).L = L
-import 'leaflet.heat'
 import { LocateFixed } from 'lucide-vue-next'
 import { useLayerStore, TIME_SLOTS, CROWD_TIME_MULT, TRAFFIC_TIME_CONG } from '../stores/layerStore'
 
@@ -282,13 +277,13 @@ function renderCrowdVisualization() {
       }
     })
     const gradient = { 0.2: '#3b0764', 0.5: '#7e22ce', 0.8: '#d946ef', 1.0: '#f0abfc' }
-    forecastHeatLayer = (L as any).heatLayer(points, { radius: 22, blur: 18, maxZoom: 15, max: 1.0, gradient }).addTo(mapInstance)
+    forecastHeatLayer = (window as any).L.heatLayer(points, { radius: 22, blur: 18, maxZoom: 15, max: 1.0, gradient }).addTo(mapInstance)
     if (forecastHeatLayer._canvas) forecastHeatLayer._canvas.style.opacity = '0.55'
   } else if (day === 0) {
     // Live fallback if the forecast hasn't loaded yet
     const data = layerStore.layerData.crowd
     if (!data) return
-    crowdHeatLayer = (L as any).heatLayer(data.heatmapPoints, {
+    crowdHeatLayer = (window as any).L.heatLayer(data.heatmapPoints, {
       radius: 20, blur: 15, maxZoom: 15, max: 1.0,
       gradient: { 0.2: '#3b0764', 0.5: '#7e22ce', 0.8: '#d946ef', 1.0: '#f0abfc' }
     }).addTo(mapInstance)
@@ -306,7 +301,7 @@ watch(() => layerStore.layerData.lighting, (data) => {
   if (!mapInstance) return
   if (lightingHeatLayer) { mapInstance.removeLayer(lightingHeatLayer); lightingHeatLayer = null }
   if (!data) return
-  lightingHeatLayer = (L as any).heatLayer(data.heatmapPoints, {
+  lightingHeatLayer = (window as any).L.heatLayer(data.heatmapPoints, {
     radius: 20, blur: 15, maxZoom: 15, max: 1.0,
     gradient: { 0.4: '#c2410c', 0.7: '#eab308', 1.0: '#ffffff' }
   }).addTo(mapInstance)
@@ -346,7 +341,13 @@ const futureDayLabels = computed(() => {
   })
 })
 
-onMounted(() => {
+onMounted(async () => {
+  // leaflet.heat is a CJS side-effect plugin that registers L.heatLayer on the
+  // global L object. Vite hoists static imports, so we must set window.L first
+  // then dynamically import the plugin to guarantee execution order.
+  ;(window as any).L = L
+  await import('leaflet.heat')
+
   if (mapContainer.value) {
     const trentoBounds = L.latLngBounds([45.90, 10.90], [46.20, 11.30])
     mapInstance = L.map(mapContainer.value, {
