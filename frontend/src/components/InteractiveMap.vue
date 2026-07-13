@@ -2,6 +2,10 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import 'leaflet/dist/leaflet.css'
 import * as L from 'leaflet'
+// leaflet.heat is a CJS side-effect plugin that attaches to window.L.
+// Vite's ESM import creates a namespace object that isn't the same reference,
+// so we must expose L globally BEFORE importing the plugin.
+;(window as any).L = L
 import 'leaflet.heat'
 import { LocateFixed } from 'lucide-vue-next'
 import { useLayerStore, TIME_SLOTS, CROWD_TIME_MULT, TRAFFIC_TIME_CONG } from '../stores/layerStore'
