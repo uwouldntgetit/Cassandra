@@ -91,7 +91,7 @@ const close = () => { errorMessage.value = ''; emit('close') }
             <X class="w-5 h-5" />
           </button>
           <h2 class="text-2xl font-bold text-white">Bentornato</h2>
-          <p class="text-cyan-50/80 text-sm mt-1">Accedi per usare Trento Smart City</p>
+          <p class="text-cyan-50/80 text-sm mt-1">Accedi per usare Cassandra</p>
         </div>
 
         <div class="p-8 space-y-5">

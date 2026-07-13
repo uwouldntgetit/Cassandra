@@ -131,7 +131,7 @@ const goToMap = () => {
         <!-- Welcome Message -->
         <div class="mb-8">
           <h2 class="text-3xl font-black mb-1">Bentornato, {{ authStore.user?.name?.split(' ')[0] || 'Admin' }}! 👋</h2>
-          <p class="text-slate-500 dark:text-slate-400">Ecco cosa succede oggi su Trento Smart City.</p>
+          <p class="text-slate-500 dark:text-slate-400">Ecco cosa succede oggi su Cassandra.</p>
         </div>
 
         <!-- Metrics Cards -->

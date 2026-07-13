@@ -22,7 +22,7 @@ const goToDashboard = () => {
     <!-- Main Content -->
     <div class="z-10 flex flex-col items-center text-center max-w-3xl px-6">
       <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-sm font-medium text-cyan-400 mb-8 backdrop-blur-md">
-        <Activity class="w-4 h-4" /> v2.0 - Smart City OS per Trento
+        <Activity class="w-4 h-4" /> v2.0 - Cassandra
       </div>
       
       <h1 class="text-5xl md:text-7xl font-black mb-6 tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-slate-400">

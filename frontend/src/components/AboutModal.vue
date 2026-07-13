@@ -48,7 +48,7 @@ onUnmounted(() => {
             <MapPin class="w-6 h-6 text-white" />
           </div>
           
-          <h2 class="text-2xl font-bold text-white tracking-wide">Trento Smart City</h2>
+          <h2 class="text-2xl font-bold text-white tracking-wide">Cassandra</h2>
           <p class="text-cyan-50/90 text-sm mt-1 font-medium">Dashboard v1.0.0</p>
         </div>
 
